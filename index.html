@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echoes of Tomorrow - Post-Apocalyptic English Speaking RPG</title>
+    <title>Echoes of Tomorrow V2 - Post-Apocalyptic Immersive RPG</title>
     <style>
         :root {
-            --bg-color: #1a1a1a;
+            --bg-color: #111111;
             --text-color: #e0e0e0;
             --accent-color: #ff4757;
-            --panel-bg: #2f3542;
+            --panel-bg: #1a1a1a;
         }
         body {
             font-family: 'Courier New', Courier, monospace;
@@ -20,233 +20,405 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: background-color 0.8s ease;
         }
         #game-container {
             max-width: 800px;
             width: 100%;
             background: var(--panel-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            border: 1px solid #444;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.5s ease, border-color 0.5s ease;
         }
         #story-img {
             width: 100%;
-            height: 350px;
+            height: 380px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 6px;
             margin-bottom: 20px;
-            border: 2px solid #555;
+            border: 2px solid var(--accent-color);
+            transition: border-color 0.5s ease;
         }
         #character-voice {
             font-style: italic;
             color: #ffa502;
             margin-bottom: 10px;
             font-weight: bold;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
         }
         #situation-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
         }
-        #hints-panel {
-            background: #1e222b;
-            padding: 15px;
+        details {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px;
             border-left: 4px solid var(--accent-color);
             margin-bottom: 20px;
+            border-radius: 0 6px 6px 0;
+            transition: border-color 0.5s ease;
         }
-        #hints-panel h3 { margin-top: 0; color: var(--accent-color); }
-        #hints-panel ul { padding-left: 20px; }
-        #hints-panel li { margin-bottom: 8px; cursor: pointer; color: #7bed9f; }
-        #hints-panel li:hover { text-decoration: underline; }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--accent-color);
+            outline: none;
+            user-select: none;
+        }
+        #hints-list {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        #hints-list li {
+            margin-bottom: 8px;
+            cursor: pointer;
+            color: #7bed9f;
+            transition: 0.2s;
+        }
+        #hints-list li:hover {
+            text-decoration: underline;
+            color: #2ed573;
+        }
         #controls {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             align-items: center;
-            justify-content: center;
-            margin-top: 20px;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
-        button {
+        .btn {
             background: var(--accent-color);
             color: white;
             border: none;
             padding: 12px 24px;
             font-size: 1rem;
+            font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
             cursor: pointer;
             border-radius: 4px;
-            transition: 0.2s;
+            transition: background 0.3s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        button:disabled { background: #555; cursor: not-allowed; }
-        button:hover:not(:disabled) { opacity: 0.9; }
+        .btn:disabled {
+            background: #444 !important;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        #bgm-btn {
+            background: #2f3542;
+            border: 1px solid #57606f;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
         #status {
             font-weight: bold;
             color: #2ed573;
+            font-size: 0.95rem;
         }
         #transcript {
-            margin-top: 10px;
+            margin-top: 15px;
             font-style: italic;
             color: #a4b0be;
             text-align: center;
+            min-height: 20px;
         }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <h1 style="text-align: center; color: var(--accent-color);">ECHOES OF TOMORROW</h1>
-    <img id="story-img" src="" alt="Story Scene">
-    
-    <div id="character-voice">Loading...</div>
-    <div id="situation-text">Loading situation...</div>
-
-    <div id="hints-panel">
-        <h3>What you can say (Suggestions):</h3>
-        <ul id="hints-list"></ul>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="margin: 0; color: var(--accent-color); letter-spacing: 2px;">ECHOES OF TOMORROW</h2>
+        <button id="bgm-btn" class="btn" onclick="toggleBGM()">🎵 Play Ambient BGM</button>
     </div>
 
+    <!-- Background Audio Loop (Eerie Dark Drone Ambient) -->
+    <audio id="bgm" src="https://assets.mixkit.co/music/preview/mixkit-mysterious-ambient-tribal-drone-1224.mp3" loop></audio>
+
+    <img id="story-img" src="" alt="Post-Apocalyptic Cinematic Scene">
+    
+    <div id="character-voice">Loading Voice Engine...</div>
+    <div id="situation-text">Initialising wasteland coordinates...</div>
+
+    <!-- Native toggleable suggestions -->
+    <details id="hints-details">
+        <summary id="hints-summary">💡 Show Speech Suggestions (Click to reveal)</summary>
+        <ul id="hints-list"></ul>
+    </details>
+
     <div id="controls">
-        <button id="mic-btn" onclick="startListening()">🎤 Start Speaking</button>
-        <span id="status">Status: Idle</span>
+        <button id="mic-btn" class="btn" onclick="startListening()">🎤 Start Speaking</button>
+        <span id="status">Status: Standby</span>
     </div>
     <div id="transcript">You said: "..."</div>
 </div>
 
 <script>
-// --- GAME DATA STRUCTURE ---
+// --- IMMERSIVE THEMATIC DATA STRUCTURE ---
 const storyData = {
     main: {
-        speaker: "Jax (Your Companion - Male Voice)",
-        text: "Hey, we are running out of clean water in this bunker. We need to move now. I've mapped out 7 possible areas, but they are all dangerous. Where should we head? The Dark Forest, the Ruined City, the Subways Metro, the Desert Highway, the Toxic River, the Abandoned Hospital, or the Secret Laboratory?",
-        img: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800", // Bunker
+        speaker: "Jax (Your Survival Partner)",
+        text: "Hey, look at me. Breathe. The underground bunker's life-support filters just collapsed, and our clean water grid is completely bone-dry. We have to move right now or choke on toxic dust. I've mapped out 7 harsh sectors across the wasteland zone, but each one is crawling with dangers. Where are we heading? The Dark Forest, the Ruined City, the Subway Metro, the Desert Highway, the Toxic River, the Abandoned Hospital, or the Secret Laboratory?",
+        img: "https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?auto=format&fit=crop&w=800&q=80", 
         voiceType: 'male',
+        theme: { bg: "#0f0f11", panel: "#191a1f", accent: "#ff4757" },
         branches: {
             "forest": "dark_forest", "city": "ruined_city", "metro": "subway_metro",
             "highway": "desert_highway", "river": "toxic_river", "hospital": "hospital", "laboratory": "laboratory"
         },
-        hints: ["Go to the forest", "Let's explore the city", "Enter the metro subways", "Take the desert highway", "Follow the toxic river", "Search the hospital", "Investigate the laboratory"]
+        hints: ["Go to the forest", "Let's explore the city", "Enter the subway metro", "Take the desert highway", "Follow the toxic river", "Search the hospital", "Investigate the laboratory"]
     },
     
     // --- 7 MAIN BRANCHES ---
     dark_forest: {
         speaker: "Jax",
-        text: "The trees are mutated and the fog is thick. I hear something growling nearby. What's our move?",
-        img: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=800",
+        text: "The mutated pine trees are towering over us, weeping black sap. The ash-fog is incredibly dense here. Wait... shh! I hear heavy, abnormal clawed footsteps clicking on the frozen dirt nearby. What's our strategy?",
+        img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80",
         voiceType: 'male',
-        hints: ["Climb a tree", "Hide in the bushes", "Run forward", "Light a torch"],
+        theme: { bg: "#09140e", panel: "#12241a", accent: "#2ecc71" },
+        hints: ["Climb a tree immediately", "Hide in the bushes", "Run forward fast", "Light a torch"],
         branches: { "climb": "forest_yes_no", "hide": "forest_yes_no", "run": "forest_yes_no", "light": "forest_dead" }
     },
     ruined_city: {
         speaker: "Jax",
-        text: "Snipers or scavengers could be in these skyscrapers. Look, there's a gun store and an alleyway. What do you think?",
-        img: "https://images.unsplash.com/photo-1476973422084-e0fa66ff9456?q=80&w=800",
+        text: "Look up. Those cracked skyscrapers look like hollowed-out tombs. Scavengers and automated drone snipers love these high vantage points. Wait, look over there—a fortified military gun store and a narrow, shadowy alleyway. Which way?",
+        img: "https://images.unsplash.com/photo-1536746803623-cef87080bfc8?auto=format&fit=crop&w=800&q=80",
         voiceType: 'male',
-        hints: ["Enter the gun store", "Walk down the alley", "Scavenge the cars", "Shout for help"],
+        theme: { bg: "#1c1d1f", panel: "#2b2d30", accent: "#f1c40f" },
+        hints: ["Enter the gun store", "Walk down the alley", "Scavenge the rusted cars", "Shout for help"],
         branches: { "store": "city_yes_no", "alley": "city_yes_no", "cars": "city_yes_no", "shout": "city_dead" }
     },
     subway_metro: {
         speaker: "Jax",
-        text: "It's pitch black down here. The tracks lead deeper into the dark, but there's a maintenance room over there.",
-        img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=800",
+        text: "It's completely pitch black down here, and the air smells like rusted iron. The broken train tracks plunge straight down into a subterranean void, but I see a flickering green emergency light over a maintenance security door.",
+        img: "https://images.unsplash.com/photo-1515165504669-423042074e6c?auto=format&fit=crop&w=800&q=80",
         voiceType: 'male',
-        hints: ["Check maintenance room", "Walk down the tracks", "Turn on my flashlight", "Make some noise"],
+        theme: { bg: "#0d0d0d", panel: "#1a1a1a", accent: "#95a5a6" },
+        hints: ["Check the maintenance room", "Walk down the tracks", "Turn on my flashlight", "Make some loud noise"],
         branches: { "room": "metro_yes_no", "tracks": "metro_yes_no", "flashlight": "metro_yes_no", "noise": "metro_dead" }
     },
     desert_highway: {
         speaker: "Jax",
-        text: "The sun is burning us alive. I see an abandoned military truck and an old diner. Where to?",
-        img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=800",
+        text: "The twin suns are absolutely boiling our skin. The asphalt is completely melted. Look, there's a sand-buried old military transport truck on the left and a collapsing concrete diner on the right. Where do we seek shelter?",
+        img: "https://images.unsplash.com/photo-1547234935-80c7145ec969?auto=format&fit=crop&w=800&q=80",
         voiceType: 'male',
-        hints: ["Search the truck", "Go inside the diner", "Keep walking the road", "Drink sand"],
+        theme: { bg: "#2c1e15", panel: "#3e2b1e", accent: "#e67e22" },
+        hints: ["Search the truck", "Go inside the diner", "Keep walking the road", "Drink the hot sand"],
         branches: { "truck": "highway_yes_no", "diner": "highway_yes_no", "road": "highway_yes_no", "drink": "highway_dead" }
     },
     toxic_river: {
         speaker: "Jax",
-        text: "The water is bright green. There's an old wooden boat and a rusty bridge. How do we cross?",
-        img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800",
+        text: "This river is glowing with a sickening neon-green bioluminescence. The fumes are eating through my mask filter. There's a half-submerged wooden boat tied to a skull, and a unstable, rusted suspension bridge swaying above.",
+        img: "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=800&q=80",
         voiceType: 'male',
-        hints: ["Use the wooden boat", "Cross the rusty bridge", "Swim across", "Drink the water"],
+        theme: { bg: "#0f1f15", panel: "#193322", accent: "#00ff66" },
+        hints: ["Use the wooden boat", "Cross the rusty bridge", "Swim across the water", "Drink the green water"],
         branches: { "boat": "river_yes_no", "bridge": "river_yes_no", "swim": "river_yes_no", "drink": "river_dead" }
     },
     hospital: {
-        speaker: "Elena (Stranded Doctor - Female Voice)",
-        text: "Stop right there! Who are you? This hospital is infected, but I need help gathering medicine. Will you assist me or scavenge on your own?",
-        img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800",
+        speaker: "Elena (Wasteland Surgeon)",
+        text: "Halt! Do not take another step or I will blow your head off! This ward is heavily quarantined with a flesh-eating spore outbreak. But... I desperately need healthy muscle to help me harvest synthetic antibiotics. Will you help me, or do you intend to steal?",
+        img: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80",
         voiceType: 'female',
-        hints: ["Help the doctor", "Scavenge on my own", "Ask for medical supplies", "Attack the doctor"],
+        theme: { bg: "#1a1f21", panel: "#272e30", accent: "#9b59b6" },
+        hints: ["Help the doctor", "Scavenge on my own", "Ask for medical supplies", "Attack the doctor instantly"],
         branches: { "help": "hospital_yes_no", "scavenge": "hospital_yes_no", "ask": "hospital_yes_no", "attack": "hospital_dead" }
     },
     laboratory: {
-        speaker: "Dr. Vance (Crazed Scientist - Male Voice)",
-        text: "Intruders! You walk into my lab demanding answers? The cure is right here, but it requires a sacrifice. What do you want?",
-        img: "https://images.unsplash.com/photo-1532187863486-abf9d39d6618?q=80&w=800",
-        voiceType: 'female', // Giọng khác biệt biệt lập
-        hints: ["Ask for the cure", "Threaten the scientist", "Steal the chemicals", "Drink the mystery liquid"],
+        speaker: "Dr. Vance (Crazed Synthesizer)",
+        text: "Intruders! Fools! You stumble blindly into my cleanroom and dare look upon my supreme creation? The synthetic DNA strain to restore the planetary ecosystem is right inside this glass capsule... but it requires an active neural sacrifice. Speak your intent!",
+        img: "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=800&q=80",
+        voiceType: 'female', 
+        theme: { bg: "#0f171e", panel: "#182430", accent: "#3498db" },
+        hints: ["Ask for the cure", "Threaten the scientist", "Steal the chemicals", "Drink the mystery serum"],
         branches: { "cure": "lab_yes_no", "threaten": "lab_yes_no", "steal": "lab_yes_no", "drink": "lab_dead" }
     },
 
-    // --- INSTA-DEATH BRANCHES ---
-    forest_dead: { speaker: "System", text: "The torch light attracted a pack of mutated wolves. You were torn to pieces. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
-    city_dead: { speaker: "System", text: "Your shouting alerted a gang of raiders. They captured you immediately. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
-    metro_dead: { speaker: "System", text: "The noise caused a massive cave-in. You are buried alive under tons of rubble. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
-    highway_dead: { speaker: "System", text: "You drank toxic dust and dehydrated instantly under the wasteland sun. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
-    river_dead: { speaker: "System", text: "The acid in the river melted your suit and flesh in seconds. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
-    hospital_dead: { speaker: "Elena", text: "You made a big mistake. Elena pulls a shotgun and shoots. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'female'},
-    lab_dead: { speaker: "Dr. Vance", text: "The liquid was pure acid. You dissolve from the inside out. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'female'},
+    // --- 7 INSTA-DEATH BRANCHES ---
+    forest_dead: { 
+        speaker: "System Log", 
+        text: "The sudden burst of torch fire instantly attracted a pack of starving, blind mutated stalkers. Your throat is ripped out before you can even scream. CRITICAL FAILURE.", 
+        img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80", 
+        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
+        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
+    },
+    city_dead: { 
+        speaker: "System Log", 
+        text: "Your loud yelling echoed off the concrete ruins, alerting an armored scavenger warband. They locate your position, capture you, and throw you into the slave scrap-pits. CRITICAL FAILURE.", 
+        img: "https://images.unsplash.com/photo-1504714146340-959fb01e2798?auto=format&fit=crop&w=800&q=80", 
+        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
+        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
+    },
+    metro_dead: { 
+        speaker: "System Log", 
+        text: "The heavy sonic vibrations of your shouting triggered a massive structural failure in the unstable tunnel ceiling. Thousands of tons of concrete rubble bury you completely. CRITICAL FAILURE.", 
+        img: "https://images.unsplash.com/photo-1531266752426-aad472b7bbf4?auto=format&fit=crop&w=800&q=80", 
+        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
+        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
+    },
+    highway_dead: { 
+        speaker: "System Log", 
+        text: "You fell to your knees and frantically consumed the boiling radioactive sand. Your inner throat and stomach burn violently from internal thermal shock. CRITICAL FAILURE.", 
+        img: "https://images.unsplash.com/photo-1601933470484-4421c3dbef63?auto=format&fit=crop&w=800&q=80", 
+        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
+        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
+    },
+    river_dead: { 
+        speaker: "System Log", 
+        text: "The industrial acid concentrations in the green sludge are too extreme. Your environment suit dissolves in seconds, followed swiftly by your organic tissue. CRITICAL FAILURE.", 
+        img: "https://images.unsplash.com/photo-1599740831618-e30b35520e7e?auto=format&fit=crop&w=800&q=80", 
+        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
+        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
+    },
+    hospital_dead: { 
+        speaker: "Elena", 
+        text: "You drew your blade like an uneducated thug. Elena pulls an automated dual-barrel flak gun from beneath her coat and vaporises your torso instantly. CRITICAL FAILURE.", 
+        img: "https://images.unsplash.com/photo-1584036561566-baf241f2d449?auto=format&fit=crop&w=800&q=80", 
+        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'female',
+        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
+    },
+    lab_dead: { 
+        speaker: "Dr. Vance", 
+        text: "You blindly swallowed the raw chemical serum. Your cellular biology completely destabilises, transforming your internal organs into liquefied black carbon sludge. CRITICAL FAILURE.", 
+        img: "https://images.unsplash.com/photo-1614853038014-c24a7fefd6a0?auto=format&fit=crop&w=800&q=80", 
+        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'female',
+        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
+    },
 
-    // --- YES/NO DECISION BRANCHES ---
+    // --- 7 UNIQUE YES/NO CRITICAL CHOICES ---
     forest_yes_no: {
-        speaker: "Jax", text: "We survived the beast! But look, there's a mysterious glowing capsule here. Should we open it? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
-        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+        speaker: "Jax", text: "Incredible, we bypassed the predator! Look here... a military cryogenic container hidden beneath the roots. It holds an active terraforming device that could clean this sector. Do we force it open? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#09140e", panel: "#12241a", accent: "#2ecc71" },
+        hints: ["Say YES", "Say NO"], branches: { "yes": "forest_win", "no": "forest_lose" }
     },
     city_yes_no: {
-        speaker: "Jax", text: "We found a working radio! It's broadcasting a rescue signal from a safe zone. Should we trust them and go? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
-        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+        speaker: "Jax", text: "We successfully reached the roof transmission array! A high-frequency radio signal is looping from a floating naval super-carrier off the coast, promising infinite food. Do we transmit our exact location coordinates? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1543269664-76bc3997d9ea?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#1c1d1f", panel: "#2b2d30", accent: "#f1c40f" },
+        hints: ["Say YES", "Say NO"], branches: { "yes": "city_win", "no": "city_lose" }
     },
-    metro_yes_no: {
-        speaker: "Jax", text: "An old train is still powered up! It can take us out of the city. Do we pull the lever to start it? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
-        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+    subway_metro: {
+        speaker: "Jax", text: "The maintenance console works! There is an old heavy armored freight train on track three with full electrical fuel reserves. Do we flip the main engine lever to break out of the dark? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#0d0d0d", panel: "#1a1a1a", accent: "#95a5a6" },
+        hints: ["Say YES", "Say NO"], branches: { "yes": "metro_win", "no": "metro_lose" }
     },
     highway_yes_no: {
-        speaker: "Jax", text: "A convoy of traders is passing by. They offer to take us to their city for all our gear. Do we agree? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
-        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+        speaker: "Jax", text: "An armed trade convoy of the New Oasis Federation just stopped their engines. Their commander offers to transport us to their safe citadel, but they demand all our weapons and gear right now. Do we trust them? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#2c1e15", panel: "#3e2b1e", accent: "#e67e22" },
+        hints: ["Say YES", "Say NO"], branches: { "yes": "highway_win", "no": "highway_lose" }
     },
     river_yes_no: {
-        speaker: "Jax", text: "We crossed! On the other side is a pristine garden untouched by radiation. Do we settle down here forever? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
-        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+        speaker: "Jax", text: "We navigated the acidic waves perfectly! On this opposite bank lies an underground biodome completely untouched by radiation fallout, full of clean fruit. Do we settle down here forever and build a home? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#0f1f15", panel: "#193322", accent: "#00ff66" },
+        hints: ["Say YES", "Say NO"], branches: { "yes": "river_win", "no": "river_lose" }
     },
     hospital_yes_no: {
-        speaker: "Elena", text: "We got the medicine! She offers to join our bunker team as a permanent doctor. Do you accept her? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800", voiceType: 'female',
-        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+        speaker: "Elena", text: "The spore sample matches! The synthesis is complete. I hold enough universal anti-plague serum to cure your entire bunker group. In exchange, I demand to join your team as chief officer. Do we shake on this deal? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1579684389782-64d84b5e901a?auto=format&fit=crop&w=800&q=80", voiceType: 'female',
+        theme: { bg: "#1a1f21", panel: "#272e30", accent: "#9b59b6" },
+        hints: ["Say YES", "Say NO"], branches: { "yes": "hospital_win", "no": "hospital_lose" }
     },
     lab_yes_no: {
-        speaker: "Dr. Vance", text: "I can give you the cure, but you must leave your friend Jax behind for experiments. Do you accept my deal? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1532187863486-abf9d39d6618?q=80&w=800", voiceType: 'female',
-        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+        speaker: "Dr. Vance", text: "The biological catalyst is stable. I will hand you the atmospheric cure canister, but you must willingly leave your companion Jax behind in my pods for genetic experimentation. Do you accept my dark condition? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80", voiceType: 'female',
+        theme: { bg: "#0f171e", panel: "#182430", accent: "#3498db" },
+        hints: ["Say YES", "Say NO"], branches: { "yes": "lab_win", "no": "lab_lose" }
     },
 
-    // --- ENDINGS ---
-    win_ending: {
-        speaker: "Narrator", text: "Congratulations! Your choice led to salvation. You found safety, a cure, or a new future for humanity. YOU WIN!",
-        img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800", voiceType: 'male',
-        hints: ["Play Again"], branches: { "play": "main", "again": "main" }
+    // --- UNIQUE ENDINGS (7 WIN / 7 LOSE) ---
+    forest_win: {
+        speaker: "Narrator", text: "THE GREEN REBORN: The cryogenic matrix released cleansing nano-spores. The toxic fog rapidly dispersed, transforming the dark woods into a blossoming green paradise. You and Jax establish the first sustainable settlement of the new age. VICTORY.",
+        img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#051c0e", panel: "#0d381e", accent: "#2ecc71" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
     },
-    lose_ending: {
-        speaker: "Narrator", text: "You chose safety over risk, but the wasteland caught up to you anyway. Your journey ends in hunger and cold. YOU LOSE.",
-        img: "https://images.unsplash.com/photo-1476973422084-e0fa66ff9456?q=80&w=800", voiceType: 'male',
-        hints: ["Play Again"], branches: { "play": "main", "again": "main" }
+    forest_lose: {
+        speaker: "Narrator", text: "LOST IN THE SHADOWS: You left the capsule sealed. As you walked away, an unnatural radioactive blizzard swept through the branches, blinding your path. You and Jax slowly froze to death in the eternal green maze. RECONNAISSANCE OVER.",
+        img: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    city_win: {
+        speaker: "Narrator", text: "THE NAVAL SANCTUARY: The naval super-carrier confirmed your coordinates! Within hours, a vertical-takeoff heavy aircraft arrived on the skyscraper roof, extracting you both to a massive, thriving ocean city. VICTORY.",
+        img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#102533", panel: "#193b52", accent: "#3498db" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    city_lose: {
+        speaker: "Narrator", text: "ASH AND CINDERS: Out of paranoia, you kept radio silence. An hour later, an automated orbital defense satellite detected the old terminal's power surge and fired a tactical missile, turning the skyline to dust. RECONNAISSANCE OVER.",
+        img: "https://images.unsplash.com/photo-1531266752426-aad472b7bbf4?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    metro_win: {
+        speaker: "Narrator", text: "THE UNDERGROUND CITADEL: The armored train accelerated, smashing brutally through a concrete barricade at the end of the line. You broke out into an immense underground hydro-farm metropolis inhabited by thousands. VICTORY.",
+        img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#111", panel: "#222", accent: "#9b59b6" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    metro_lose: {
+        speaker: "Narrator", text: "CHOKED BY THE DARK: You abandoned the train. Minutes later, your flashlight batteries expired. In the absolute dark, a swarm of crawling blind ghouls surrounded you, sealing your fate in the deep earth. RECONNAISSANCE OVER.",
+        img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    highway_win: {
+        speaker: "Narrator", text: "CITADEL OF EDEN: The convoy commander kept his word. Completely unarmed but safe, you are escorted inside the massive blast gates of 'New Eden', an advanced city with real solar grids and clean running water. VICTORY.",
+        img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#3d2a1d", panel: "#5c3f2b", accent: "#e67e22" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    highway_lose: {
+        speaker: "Narrator", text: "DESERT MIRAGE: You refused the deal and kept your guns. The convoy drove away, leaving you to wander. By noon, your water reserves evaporated, and you collapsed under the unrelenting heat of the highway. RECONNAISSANCE OVER.",
+        img: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    river_win: {
+        speaker: "Narrator", text: "THE GREEN OASIS: You chose peace. The biodome soil proved exceptionally rich and non-toxic. Over the next decade, you, Jax, and other survivors engineer an agricultural empire that could save the world. VICTORY.",
+        img: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#0d2b14", panel: "#195427", accent: "#2ecc71" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    river_lose: {
+        speaker: "Narrator", text: "THE RAD-BURNT WANDERERS: You pushed further down the river banks. However, the microscopic acid vapors from your initial crossing had already compromised your lung tissue. You slowly pass away peacefully in your sleep. RECONNAISSANCE OVER.",
+        img: "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    hospital_win: {
+        speaker: "Narrator", text: "THE ANTIDOTE DAWN: Dr. Elena integrated perfectly into your home faction. Her mass-production of the synthetic antibiotics cleansed your colony's bloodline, making your bunker population fully immune to the global blight. VICTORY.",
+        img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#232b2b", panel: "#354242", accent: "#1abc9c" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    hospital_lose: {
+        speaker: "Narrator", text: "THE SPORE PLAGUE: You rejected her terms and left empty-handed. Three weeks later, a rogue scavenger inadvertently brought the bio-spores into your home bunker. Without a professional physician, everyone withered away. RECONNAISSANCE OVER.",
+        img: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    lab_win: {
+        speaker: "Narrator", text: "THE IMMORTAL GUILT: You saved humanity by deploying the master cure canister globally, but at a horrifying personal cost. You survive as the absolute legendary savior of Earth, but carry the eternal ghost of Jax's screams forever. BITTERSWEET VICTORY.",
+        img: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#161d24", panel: "#25323d", accent: "#e74c3c" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+    },
+    lab_lose: {
+        speaker: "Narrator", text: "LABORATORY TERMINATION: You refused to betray your brother-in-arms. Infuriated, Dr. Vance triggered the cleanroom's internal plasma purification grid, turning you, Jax, and the planetary antidote into instant atomic ash. RECONNAISSANCE OVER.",
+        img: "https://images.unsplash.com/photo-1532187863486-abf9d39d6618?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
+        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
     }
 };
 
 let currentState = "main";
+let bgmStarted = false;
 
-// --- SPEECH RECOGNITION SETUP ---
+// --- ADVANCED SPEECH RECOGNITION CONFIG ---
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition;
 if (SpeechRecognition) {
@@ -257,8 +429,9 @@ if (SpeechRecognition) {
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
-        document.getElementById('status').innerText = "Status: Listening...";
+        document.getElementById('status').innerText = "Status: Listening carefully...";
         document.getElementById('mic-btn').disabled = true;
+        autoPlayBGMOnInteraction();
     };
 
     recognition.onresult = (event) => {
@@ -268,34 +441,52 @@ if (SpeechRecognition) {
     };
 
     recognition.onerror = (e) => {
-        document.getElementById('status').innerText = "Status: Error occurred. Try again.";
+        document.getElementById('status').innerText = "Status: Connection dimmed. Try speaking again.";
         document.getElementById('mic-btn').disabled = false;
     };
 
     recognition.onend = () => {
-        document.getElementById('status').innerText = "Status: Idle";
+        document.getElementById('status').innerText = "Status: Standby";
         document.getElementById('mic-btn').disabled = false;
     };
-} else {
-    alert("Your browser does not support Web Speech API. Please use Google Chrome.");
 }
 
-// --- GAME LOGIC ---
+// --- CORE GAME ENGINE ---
 function updateUI() {
     const node = storyData[currentState];
+    
+    // Dynamic Theme Transitions (Backgrounds and Accents matched perfectly to situations)
+    document.documentElement.style.setProperty('--bg-color', node.theme.bg);
+    document.documentElement.style.setProperty('--panel-bg', node.theme.panel);
+    document.documentElement.style.setProperty('--accent-color', node.theme.accent);
+
     document.getElementById('character-voice').innerText = node.speaker + ":";
     document.getElementById('situation-text').innerText = node.text;
     document.getElementById('story-img').src = node.img;
     
+    // Config suggestions panel: closed/collapsed by default for normal branches, open for binary branches
+    const detailsEl = document.getElementById('hints-details');
+    if (currentState.includes('yes_no')) {
+        detailsEl.open = true;
+        document.getElementById('hints-summary').innerText = "⚠️ Critical Decision Required! Choose your words:";
+    } else {
+        detailsEl.open = false;
+        document.getElementById('hints-summary').innerText = "💡 Show Speech Suggestions (Click to reveal)";
+    }
+
     const hintsList = document.getElementById('hints-list');
     hintsList.innerHTML = "";
     node.hints.forEach(hint => {
         let li = document.createElement('li');
         li.innerText = hint;
+        li.onclick = () => {
+            document.getElementById('transcript').innerText = `[Clicked Hint] "${hint}"`;
+            processInput(hint.toLowerCase());
+        };
         hintsList.appendChild(li);
     });
 
-    // AI Speak current situation
+    // Run high-quality local text-to-speech engine
     speak(node.text, node.voiceType);
 }
 
@@ -307,7 +498,7 @@ function processInput(text) {
     const node = storyData[currentState];
     let matchedBranch = null;
 
-    // Check keywords to switch branches
+    // Advanced token matching
     for (const key in node.branches) {
         if (text.includes(key)) {
             matchedBranch = node.branches[key];
@@ -319,26 +510,32 @@ function processInput(text) {
         currentState = matchedBranch;
         updateUI();
     } else {
-        document.getElementById('status').innerText = "Status: Command not recognized. Speak again!";
-        speak("I didn't catch that. Could you please repeat?", node.voiceType);
+        document.getElementById('status').innerText = "Status: Transmission unclear. Repeat command.";
+        speak("I couldn't clarify that transmission. Repeat your choice clearly.", node.voiceType);
     }
 }
 
-// --- TEXT TO SPEECH (AI VOICE) ---
+// --- OPTIMISED CINEMATIC SPEECH ENGINE (GOOGLE AI Fallbacks) ---
 function speak(text, gender) {
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Stop current speech
+        window.speechSynthesis.cancel(); 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
         
-        // Find suitable voice
+        // Slower speech rate and slightly lower pitch mimic premium human studio generation
+        utterance.rate = 0.90; 
+        
         const voices = window.speechSynthesis.getVoices();
-        let selectedVoice = voices.find(v => v.lang.includes('en'));
+        
+        // Primary lookup: Premium cloud-based Google voices integrated into modern browsers
+        let selectedVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en'));
         
         if (gender === 'female') {
-            selectedVoice = voices.find(v => v.name.includes('Google US English Female') || v.name.includes('Zira') || (v.lang.includes('en') && v.name.includes('Female')));
+            utterance.pitch = 1.02;
+            selectedVoice = voices.find(v => v.name.includes('Google US English Female') || v.name.includes('Zira') || (v.lang.includes('en') && v.name.includes('Female'))) || selectedVoice;
         } else {
-            selectedVoice = voices.find(v => v.name.includes('Google US English Male') || v.name.includes('David') || (v.lang.includes('en') && v.name.includes('Male')));
+            utterance.pitch = 0.88; // Deep resonant male voice for Jax
+            selectedVoice = voices.find(v => v.name.includes('Google US English Male') || v.name.includes('David') || (v.lang.includes('en') && v.name.includes('Male'))) || selectedVoice;
         }
         
         if (selectedVoice) utterance.voice = selectedVoice;
@@ -346,20 +543,46 @@ function speak(text, gender) {
     }
 }
 
-// Init Game on voices loaded (needed for Chrome)
+// --- AUDIO BACKGROUND CONTROL (BGM) ---
+function toggleBGM() {
+    const bgm = document.getElementById('bgm');
+    const btn = document.getElementById('bgm-btn');
+    if (bgm.paused) {
+        bgm.play().catch(e => console.log("Audio play blocked by security constraints. Action interaction required first."));
+        btn.innerText = "🔇 Mute BGM Music";
+        btn.style.background = "#e74c3c";
+        bgmStarted = true;
+    } else {
+        bgm.pause();
+        btn.innerText = "🎵 Play Ambient BGM";
+        btn.style.background = "#2f3542";
+    }
+}
+
+function autoPlayBGMOnInteraction() {
+    if (!bgmStarted) {
+        const bgm = document.getElementById('bgm');
+        bgm.play().then(() => {
+            document.getElementById('bgm-btn').innerText = "🔇 Mute BGM Music";
+            document.getElementById('bgm-btn').style.background = "#e74c3c";
+            bgmStarted = true;
+        }).catch(() => {});
+    }
+}
+
+// Trigger initial startup
 window.speechSynthesis.onvoiceschanged = () => {
-    if(document.getElementById('situation-text').innerText === "Loading situation...") {
+    if(document.getElementById('situation-text').innerText === "Initialising wasteland coordinates...") {
         updateUI();
     }
 };
 
-// Fallback init
 window.onload = () => {
     setTimeout(() => {
-        if(document.getElementById('situation-text').innerText === "Loading situation...") {
+        if(document.getElementById('situation-text').innerText === "Initialising wasteland coordinates...") {
             updateUI();
         }
-    }, 1000);
+    }, 800);
 };
 </script>
 </body>
