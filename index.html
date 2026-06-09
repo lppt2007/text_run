@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Tomorrow - Post-Apocalyptic English Speaking RPG</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --accent-color: #ff4757;
+            --panel-bg: #2f3542;
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #game-container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: 1px solid #444;
+        }
+        #story-img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 2px solid #555;
+        }
+        #character-voice {
+            font-style: italic;
+            color: #ffa502;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        #situation-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        #hints-panel {
+            background: #1e222b;
+            padding: 15px;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 20px;
+        }
+        #hints-panel h3 { margin-top: 0; color: var(--accent-color); }
+        #hints-panel ul { padding-left: 20px; }
+        #hints-panel li { margin-bottom: 8px; cursor: pointer; color: #7bed9f; }
+        #hints-panel li:hover { text-decoration: underline; }
+        #controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        button:disabled { background: #555; cursor: not-allowed; }
+        button:hover:not(:disabled) { opacity: 0.9; }
+        #status {
+            font-weight: bold;
+            color: #2ed573;
+        }
+        #transcript {
+            margin-top: 10px;
+            font-style: italic;
+            color: #a4b0be;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <h1 style="text-align: center; color: var(--accent-color);">ECHOES OF TOMORROW</h1>
+    <img id="story-img" src="" alt="Story Scene">
+    
+    <div id="character-voice">Loading...</div>
+    <div id="situation-text">Loading situation...</div>
+
+    <div id="hints-panel">
+        <h3>What you can say (Suggestions):</h3>
+        <ul id="hints-list"></ul>
+    </div>
+
+    <div id="controls">
+        <button id="mic-btn" onclick="startListening()">🎤 Start Speaking</button>
+        <span id="status">Status: Idle</span>
+    </div>
+    <div id="transcript">You said: "..."</div>
+</div>
+
+<script>
+// --- GAME DATA STRUCTURE ---
+const storyData = {
+    main: {
+        speaker: "Jax (Your Companion - Male Voice)",
+        text: "Hey, we are running out of clean water in this bunker. We need to move now. I've mapped out 7 possible areas, but they are all dangerous. Where should we head? The Dark Forest, the Ruined City, the Subways Metro, the Desert Highway, the Toxic River, the Abandoned Hospital, or the Secret Laboratory?",
+        img: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800", // Bunker
+        voiceType: 'male',
+        branches: {
+            "forest": "dark_forest", "city": "ruined_city", "metro": "subway_metro",
+            "highway": "desert_highway", "river": "toxic_river", "hospital": "hospital", "laboratory": "laboratory"
+        },
+        hints: ["Go to the forest", "Let's explore the city", "Enter the metro subways", "Take the desert highway", "Follow the toxic river", "Search the hospital", "Investigate the laboratory"]
+    },
+    
+    // --- 7 MAIN BRANCHES ---
+    dark_forest: {
+        speaker: "Jax",
+        text: "The trees are mutated and the fog is thick. I hear something growling nearby. What's our move?",
+        img: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=800",
+        voiceType: 'male',
+        hints: ["Climb a tree", "Hide in the bushes", "Run forward", "Light a torch"],
+        branches: { "climb": "forest_yes_no", "hide": "forest_yes_no", "run": "forest_yes_no", "light": "forest_dead" }
+    },
+    ruined_city: {
+        speaker: "Jax",
+        text: "Snipers or scavengers could be in these skyscrapers. Look, there's a gun store and an alleyway. What do you think?",
+        img: "https://images.unsplash.com/photo-1476973422084-e0fa66ff9456?q=80&w=800",
+        voiceType: 'male',
+        hints: ["Enter the gun store", "Walk down the alley", "Scavenge the cars", "Shout for help"],
+        branches: { "store": "city_yes_no", "alley": "city_yes_no", "cars": "city_yes_no", "shout": "city_dead" }
+    },
+    subway_metro: {
+        speaker: "Jax",
+        text: "It's pitch black down here. The tracks lead deeper into the dark, but there's a maintenance room over there.",
+        img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=800",
+        voiceType: 'male',
+        hints: ["Check maintenance room", "Walk down the tracks", "Turn on my flashlight", "Make some noise"],
+        branches: { "room": "metro_yes_no", "tracks": "metro_yes_no", "flashlight": "metro_yes_no", "noise": "metro_dead" }
+    },
+    desert_highway: {
+        speaker: "Jax",
+        text: "The sun is burning us alive. I see an abandoned military truck and an old diner. Where to?",
+        img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=800",
+        voiceType: 'male',
+        hints: ["Search the truck", "Go inside the diner", "Keep walking the road", "Drink sand"],
+        branches: { "truck": "highway_yes_no", "diner": "highway_yes_no", "road": "highway_yes_no", "drink": "highway_dead" }
+    },
+    toxic_river: {
+        speaker: "Jax",
+        text: "The water is bright green. There's an old wooden boat and a rusty bridge. How do we cross?",
+        img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800",
+        voiceType: 'male',
+        hints: ["Use the wooden boat", "Cross the rusty bridge", "Swim across", "Drink the water"],
+        branches: { "boat": "river_yes_no", "bridge": "river_yes_no", "swim": "river_yes_no", "drink": "river_dead" }
+    },
+    hospital: {
+        speaker: "Elena (Stranded Doctor - Female Voice)",
+        text: "Stop right there! Who are you? This hospital is infected, but I need help gathering medicine. Will you assist me or scavenge on your own?",
+        img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800",
+        voiceType: 'female',
+        hints: ["Help the doctor", "Scavenge on my own", "Ask for medical supplies", "Attack the doctor"],
+        branches: { "help": "hospital_yes_no", "scavenge": "hospital_yes_no", "ask": "hospital_yes_no", "attack": "hospital_dead" }
+    },
+    laboratory: {
+        speaker: "Dr. Vance (Crazed Scientist - Male Voice)",
+        text: "Intruders! You walk into my lab demanding answers? The cure is right here, but it requires a sacrifice. What do you want?",
+        img: "https://images.unsplash.com/photo-1532187863486-abf9d39d6618?q=80&w=800",
+        voiceType: 'female', // Giọng khác biệt biệt lập
+        hints: ["Ask for the cure", "Threaten the scientist", "Steal the chemicals", "Drink the mystery liquid"],
+        branches: { "cure": "lab_yes_no", "threaten": "lab_yes_no", "steal": "lab_yes_no", "drink": "lab_dead" }
+    },
+
+    // --- INSTA-DEATH BRANCHES ---
+    forest_dead: { speaker: "System", text: "The torch light attracted a pack of mutated wolves. You were torn to pieces. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
+    city_dead: { speaker: "System", text: "Your shouting alerted a gang of raiders. They captured you immediately. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
+    metro_dead: { speaker: "System", text: "The noise caused a massive cave-in. You are buried alive under tons of rubble. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
+    highway_dead: { speaker: "System", text: "You drank toxic dust and dehydrated instantly under the wasteland sun. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
+    river_dead: { speaker: "System", text: "The acid in the river melted your suit and flesh in seconds. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'male'},
+    hospital_dead: { speaker: "Elena", text: "You made a big mistake. Elena pulls a shotgun and shoots. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'female'},
+    lab_dead: { speaker: "Dr. Vance", text: "The liquid was pure acid. You dissolve from the inside out. GAME OVER.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800", hints: ["Restart Game"], branches: {"restart": "main"}, voiceType: 'female'},
+
+    // --- YES/NO DECISION BRANCHES ---
+    forest_yes_no: {
+        speaker: "Jax", text: "We survived the beast! But look, there's a mysterious glowing capsule here. Should we open it? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
+        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+    },
+    city_yes_no: {
+        speaker: "Jax", text: "We found a working radio! It's broadcasting a rescue signal from a safe zone. Should we trust them and go? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
+        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+    },
+    metro_yes_no: {
+        speaker: "Jax", text: "An old train is still powered up! It can take us out of the city. Do we pull the lever to start it? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
+        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+    },
+    highway_yes_no: {
+        speaker: "Jax", text: "A convoy of traders is passing by. They offer to take us to their city for all our gear. Do we agree? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
+        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+    },
+    river_yes_no: {
+        speaker: "Jax", text: "We crossed! On the other side is a pristine garden untouched by radiation. Do we settle down here forever? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", voiceType: 'male',
+        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+    },
+    hospital_yes_no: {
+        speaker: "Elena", text: "We got the medicine! She offers to join our bunker team as a permanent doctor. Do you accept her? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800", voiceType: 'female',
+        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+    },
+    lab_yes_no: {
+        speaker: "Dr. Vance", text: "I can give you the cure, but you must leave your friend Jax behind for experiments. Do you accept my deal? Say YES or NO.",
+        img: "https://images.unsplash.com/photo-1532187863486-abf9d39d6618?q=80&w=800", voiceType: 'female',
+        hints: ["Say YES", "Say NO"], branches: { "yes": "win_ending", "no": "lose_ending" }
+    },
+
+    // --- ENDINGS ---
+    win_ending: {
+        speaker: "Narrator", text: "Congratulations! Your choice led to salvation. You found safety, a cure, or a new future for humanity. YOU WIN!",
+        img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800", voiceType: 'male',
+        hints: ["Play Again"], branches: { "play": "main", "again": "main" }
+    },
+    lose_ending: {
+        speaker: "Narrator", text: "You chose safety over risk, but the wasteland caught up to you anyway. Your journey ends in hunger and cold. YOU LOSE.",
+        img: "https://images.unsplash.com/photo-1476973422084-e0fa66ff9456?q=80&w=800", voiceType: 'male',
+        hints: ["Play Again"], branches: { "play": "main", "again": "main" }
+    }
+};
+
+let currentState = "main";
+
+// --- SPEECH RECOGNITION SETUP ---
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition;
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+        document.getElementById('status').innerText = "Status: Listening...";
+        document.getElementById('mic-btn').disabled = true;
+    };
+
+    recognition.onresult = (event) => {
+        const speechToText = event.results[0][0].transcript.toLowerCase();
+        document.getElementById('transcript').innerText = `You said: "${speechToText}"`;
+        processInput(speechToText);
+    };
+
+    recognition.onerror = (e) => {
+        document.getElementById('status').innerText = "Status: Error occurred. Try again.";
+        document.getElementById('mic-btn').disabled = false;
+    };
+
+    recognition.onend = () => {
+        document.getElementById('status').innerText = "Status: Idle";
+        document.getElementById('mic-btn').disabled = false;
+    };
+} else {
+    alert("Your browser does not support Web Speech API. Please use Google Chrome.");
+}
+
+// --- GAME LOGIC ---
+function updateUI() {
+    const node = storyData[currentState];
+    document.getElementById('character-voice').innerText = node.speaker + ":";
+    document.getElementById('situation-text').innerText = node.text;
+    document.getElementById('story-img').src = node.img;
+    
+    const hintsList = document.getElementById('hints-list');
+    hintsList.innerHTML = "";
+    node.hints.forEach(hint => {
+        let li = document.createElement('li');
+        li.innerText = hint;
+        hintsList.appendChild(li);
+    });
+
+    // AI Speak current situation
+    speak(node.text, node.voiceType);
+}
+
+function startListening() {
+    if (recognition) recognition.start();
+}
+
+function processInput(text) {
+    const node = storyData[currentState];
+    let matchedBranch = null;
+
+    // Check keywords to switch branches
+    for (const key in node.branches) {
+        if (text.includes(key)) {
+            matchedBranch = node.branches[key];
+            break;
+        }
+    }
+
+    if (matchedBranch) {
+        currentState = matchedBranch;
+        updateUI();
+    } else {
+        document.getElementById('status').innerText = "Status: Command not recognized. Speak again!";
+        speak("I didn't catch that. Could you please repeat?", node.voiceType);
+    }
+}
+
+// --- TEXT TO SPEECH (AI VOICE) ---
+function speak(text, gender) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Stop current speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        
+        // Find suitable voice
+        const voices = window.speechSynthesis.getVoices();
+        let selectedVoice = voices.find(v => v.lang.includes('en'));
+        
+        if (gender === 'female') {
+            selectedVoice = voices.find(v => v.name.includes('Google US English Female') || v.name.includes('Zira') || (v.lang.includes('en') && v.name.includes('Female')));
+        } else {
+            selectedVoice = voices.find(v => v.name.includes('Google US English Male') || v.name.includes('David') || (v.lang.includes('en') && v.name.includes('Male')));
+        }
+        
+        if (selectedVoice) utterance.voice = selectedVoice;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+// Init Game on voices loaded (needed for Chrome)
+window.speechSynthesis.onvoiceschanged = () => {
+    if(document.getElementById('situation-text').innerText === "Loading situation...") {
+        updateUI();
+    }
+};
+
+// Fallback init
+window.onload = () => {
+    setTimeout(() => {
+        if(document.getElementById('situation-text').innerText === "Loading situation...") {
+            updateUI();
+        }
+    }, 1000);
+};
+</script>
+</body>
+</html>
