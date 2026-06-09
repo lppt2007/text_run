@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echoes of Tomorrow V2 - Post-Apocalyptic Immersive RPG</title>
+    <title>Echoes of Tomorrow V3 - Cyber Apocalypse RPG</title>
     <style>
         :root {
-            --bg-color: #111111;
-            --text-color: #e0e0e0;
+            --bg-color: #0d0e12;
+            --panel-bg: #161920;
             --accent-color: #ff4757;
-            --panel-bg: #1a1a1a;
+            --text-color: #e0e6ed;
         }
         body {
             font-family: 'Courier New', Courier, monospace;
@@ -20,18 +20,52 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: background-color 0.8s ease;
+            transition: background 0.6s ease;
         }
         #game-container {
-            max-width: 800px;
+            max-width: 850px;
             width: 100%;
             background: var(--panel-bg);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: background 0.5s ease, border-color 0.5s ease;
+            box-shadow: 0 0 35px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.5s ease;
+            position: relative;
         }
+        /* --- VISUAL EFFECTS (VFX) --- */
+        .shake {
+            animation: shakeAnim 0.4s ease-in-out;
+        }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .flash-red { animation: flashRedAnim 0.4s ease-out; }
+        @keyframes flashRedAnim { 0% { background: #ff4757; } 100% { background: var(--panel-bg); } }
+        
+        .flash-white { animation: flashWhiteAnim 0.3s ease-out; }
+        @keyframes flashWhiteAnim { 0% { filter: brightness(3); } 100% { filter: brightness(1); } }
+
+        .flash-green { animation: flashGreenAnim 0.5s ease-out; }
+        @keyframes flashGreenAnim { 0% { background: #2ed573; } 100% { background: var(--panel-bg); } }
+
+        /* --- UI COMPONENTS --- */
+        #status-panel {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0,0,0,0.4);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .status-bar { font-weight: bold; font-size: 0.9rem; }
+        #health-val { color: #ff4754; }
+        #sanity-val { color: #54a0ff; }
+        #supply-val { color: #ffa502; }
+
         #story-img {
             width: 100%;
             height: 380px;
@@ -44,122 +78,82 @@
         #character-voice {
             font-style: italic;
             color: #ffa502;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: bold;
             font-size: 1.1rem;
-            letter-spacing: 1px;
         }
         #situation-text {
-            font-size: 1.15rem;
-            line-height: 1.7;
-            margin-bottom: 25px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
         details {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
             padding: 12px;
             border-left: 4px solid var(--accent-color);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             border-radius: 0 6px 6px 0;
-            transition: border-color 0.5s ease;
         }
-        summary {
-            font-weight: bold;
-            cursor: pointer;
-            color: var(--accent-color);
-            outline: none;
-            user-select: none;
-        }
-        #hints-list {
-            padding-left: 20px;
-            margin-top: 10px;
-        }
-        #hints-list li {
-            margin-bottom: 8px;
-            cursor: pointer;
-            color: #7bed9f;
-            transition: 0.2s;
-        }
-        #hints-list li:hover {
-            text-decoration: underline;
-            color: #2ed573;
-        }
+        summary { font-weight: bold; cursor: pointer; color: var(--accent-color); user-select: none; }
+        #hints-list { padding-left: 20px; margin-top: 10px; }
+        #hints-list li { margin-bottom: 8px; cursor: pointer; color: #7bed9f; }
+        #hints-list li:hover { text-decoration: underline; }
+
         #controls {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
             justify-content: space-between;
-            margin-top: 25px;
+            margin-top: 20px;
             padding-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
         .btn {
             background: var(--accent-color);
             color: white;
             border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
+            padding: 12px 20px;
+            font-size: 0.95rem;
             font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
             cursor: pointer;
             border-radius: 4px;
-            transition: background 0.3s, transform 0.1s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.2s;
         }
-        .btn:disabled {
-            background: #444 !important;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .btn:hover:not(:disabled) {
-            filter: brightness(1.1);
-        }
-        .btn:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-        #bgm-btn {
-            background: #2f3542;
-            border: 1px solid #57606f;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-        }
-        #status {
-            font-weight: bold;
-            color: #2ed573;
-            font-size: 0.95rem;
-        }
-        #transcript {
-            margin-top: 15px;
-            font-style: italic;
-            color: #a4b0be;
-            text-align: center;
-            min-height: 20px;
-        }
+        .btn:disabled { background: #444 !important; cursor: not-allowed; opacity: 0.5; }
+        .btn:hover:not(:disabled) { filter: brightness(1.1); }
+        #back-btn { background: #57606f; }
+        #bgm-btn { background: #2f3542; font-size: 0.85rem; padding: 8px 14px; }
+        #status { font-weight: bold; color: #2ed573; }
+        #transcript { margin-top: 15px; font-style: italic; color: #a4b0be; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h2 style="margin: 0; color: var(--accent-color); letter-spacing: 2px;">ECHOES OF TOMORROW</h2>
-        <button id="bgm-btn" class="btn" onclick="toggleBGM()">🎵 Play Ambient BGM</button>
+        <h2 style="margin: 0; color: var(--accent-color); letter-spacing: 2px;">ECHOES OF TOMORROW (V3)</h2>
+        <button id="bgm-btn" class="btn" onclick="toggleBGM()">🎵 Start Ambient BGM</button>
     </div>
 
-    <!-- Background Audio Loop (Eerie Dark Drone Ambient) -->
-    <audio id="bgm" src="https://assets.mixkit.co/music/preview/mixkit-mysterious-ambient-tribal-drone-1224.mp3" loop></audio>
+    <div id="status-panel">
+        <div class="status-bar">❤️ HP: <span id="health-val">100%</span></div>
+        <div class="status-bar">🧠 SANITY: <span id="sanity-val">100%</span></div>
+        <div class="status-bar">🎒 SUPPLIES: <span id="supply-val">100%</span></div>
+    </div>
 
-    <img id="story-img" src="" alt="Post-Apocalyptic Cinematic Scene">
+    <img id="story-img" src="" alt="Wasteland Scene">
     
-    <div id="character-voice">Loading Voice Engine...</div>
-    <div id="situation-text">Initialising wasteland coordinates...</div>
+    <div id="character-voice">Loading Core Engine...</div>
+    <div id="situation-text">Booting simulation protocols...</div>
 
-    <!-- Native toggleable suggestions -->
     <details id="hints-details">
-        <summary id="hints-summary">💡 Show Speech Suggestions (Click to reveal)</summary>
+        <summary id="hints-summary">💡 Show Speech Suggestions (Click to open)</summary>
         <ul id="hints-list"></ul>
     </details>
 
     <div id="controls">
+        <button id="back-btn" class="btn" onclick="goBack()" disabled>⬅️ Back (Undo)</button>
         <button id="mic-btn" class="btn" onclick="startListening()">🎤 Start Speaking</button>
         <span id="status">Status: Standby</span>
     </div>
@@ -167,258 +161,383 @@
 </div>
 
 <script>
-// --- IMMERSIVE THEMATIC DATA STRUCTURE ---
+// --- CHƯƠNG TRÌNH TỔNG HỢP SFX KỸ THUẬT SỐ (WEB AUDIO API) ---
+// Đảm bảo tiếng súng, vụ nổ phát ra to rõ 100%, không lo lỗi link chết hoặc load chậm
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSFX(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+
+    if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); osc.stop(now + 0.1);
+    } else if (type === 'gunshot') {
+        // Tạo tiếng súng nổ đanh gọn bằng tiếng ồn trắng giả lập kỹ thuật số cường độ lớn
+        const bufferSize = audioCtx.sampleRate * 0.4;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+        
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1000;
+
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(1.5, now); // Volume súng bắn cực lớn cực rõ
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+        noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+        noise.start(now); noise.stop(now + 0.4);
+    } else if (type === 'explosion') {
+        // Tiếng nổ trầm sâu, rung chấn
+        const bufferSize = audioCtx.sampleRate * 1.5;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass'; filter.frequency.value = 200;
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(1.8, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+        noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+        noise.start(now); noise.stop(now + 1.5);
+    } else if (type === 'alert') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.linearRampToValueAtTime(300, now + 0.3);
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now); osc.stop(now + 0.4);
+    }
+}
+
+// --- HỆ THỐNG TRÌNH PHÁT NHẠC NỀN DỰ PHÒNG CHỐNG LỖI TẢI TỪ MẠNG ---
+let syntheticBGMInterval = null;
+let bgmAudioNode = null;
+let isPlayingBGM = false;
+
+function toggleBGM() {
+    const btn = document.getElementById('bgm-btn');
+    if (!isPlayingBGM) {
+        isPlayingBGM = true;
+        btn.innerText = "🔇 Mute BGM Music";
+        btn.style.background = "#e74c3c";
+        playCurrentStateBGM();
+    } else {
+        isPlayingBGM = false;
+        btn.innerText = "🎵 Start Ambient BGM";
+        btn.style.background = "#2f3542";
+        stopAllBGM();
+    }
+}
+
+function stopAllBGM() {
+    if (syntheticBGMInterval) { clearInterval(syntheticBGMInterval); syntheticBGMInterval = null; }
+    if (bgmAudioNode) { try { bgmAudioNode.pause(); } catch(e){} }
+}
+
+function playCurrentStateBGM() {
+    if (!isPlayingBGM) return;
+    stopAllBGM();
+
+    const node = storyData[currentState];
+    // Xác định kiểu nhạc cần phát dựa trên tính chất node
+    if (currentState.includes('_win')) {
+        // Nhạc hi vọng, tươi sáng (Hợp âm rải Sine ấm áp)
+        playSyntheticDrone([261.63, 329.63, 392.00, 523.25], 'sine', 0.15, 1200);
+    } else if (currentState.includes('_dead') || currentState.includes('_lose')) {
+        // Nhạc rợn tóc gáy, creepypasta âm u độc hại
+        playSyntheticDrone([65.41, 73.42, 55.00], 'sawtooth', 0.12, 2500);
+    } else {
+        // Nhạc nền sinh tồn thông thường âm hưởng trống trải bụi bặm
+        playSyntheticDrone([110.00, 130.81, 146.83], 'triangle', 0.2, 2000);
+    }
+}
+
+function playSyntheticDrone(freqs, type, volume, intervalTime) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    function triggerChord() {
+        freqs.forEach(f => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(f + (Math.random() * 2 - 1), audioCtx.currentTime);
+            
+            // Bộ lọc thông thấp tạo hiệu ứng ma mị mờ ảo bóp nghẹt âm thanh
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = (type === 'sawtooth') ? 180 : 400;
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(volume / freqs.length, audioCtx.currentTime + 1.0);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (intervalTime/1000) * 1.8);
+
+            osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + (intervalTime/1000) * 1.9);
+        });
+    }
+    triggerChord();
+    syntheticBGMInterval = setInterval(triggerChord, intervalTime);
+}
+
+// --- CẤU TRÚC KỊCH BẢN CHUẨN ĐÚNG TOÁN HỌC: 10 NHÁNH, MỖI NHÁNH 5 OPT, MỖI 5 RẼ 3 (2 YES/NO, 1 FAST END) ---
 const storyData = {
     main: {
-        speaker: "Jax (Your Survival Partner)",
-        text: "Hey, look at me. Breathe. The underground bunker's life-support filters just collapsed, and our clean water grid is completely bone-dry. We have to move right now or choke on toxic dust. I've mapped out 7 harsh sectors across the wasteland zone, but each one is crawling with dangers. Where are we heading? The Dark Forest, the Ruined City, the Subway Metro, the Desert Highway, the Toxic River, the Abandoned Hospital, or the Secret Laboratory?",
-        img: "https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?auto=format&fit=crop&w=800&q=80", 
+        speaker: "Jax",
+        text: "The surface air is pure static, and the bunker is dead. We must choose our sector now! Do we go to the Forest, City, Metro, Highway, River, Hospital, Laboratory, Military Base, Swamp, or Cathedral?",
+        img: "https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800",
         voiceType: 'male',
-        theme: { bg: "#0f0f11", panel: "#191a1f", accent: "#ff4757" },
+        theme: { bg: "#0d0e12", panel: "#161920", accent: "#ff4757" },
+        status: { health: 100, sanity: 100, supplies: 100 },
         branches: {
-            "forest": "dark_forest", "city": "ruined_city", "metro": "subway_metro",
-            "highway": "desert_highway", "river": "toxic_river", "hospital": "hospital", "laboratory": "laboratory"
+            "forest": "b_forest", "city": "b_city", "metro": "b_metro", "highway": "b_highway", "river": "b_river",
+            "hospital": "b_hospital", "lab": "b_lab", "base": "b_base", "swamp": "b_swamp", "cathedral": "b_cathedral"
         },
-        hints: ["Go to the forest", "Let's explore the city", "Enter the subway metro", "Take the desert highway", "Follow the toxic river", "Search the hospital", "Investigate the laboratory"]
-    },
-    
-    // --- 7 MAIN BRANCHES ---
-    dark_forest: {
-        speaker: "Jax",
-        text: "The mutated pine trees are towering over us, weeping black sap. The ash-fog is incredibly dense here. Wait... shh! I hear heavy, abnormal clawed footsteps clicking on the frozen dirt nearby. What's our strategy?",
-        img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80",
-        voiceType: 'male',
-        theme: { bg: "#09140e", panel: "#12241a", accent: "#2ecc71" },
-        hints: ["Climb a tree immediately", "Hide in the bushes", "Run forward fast", "Light a torch"],
-        branches: { "climb": "forest_yes_no", "hide": "forest_yes_no", "run": "forest_yes_no", "light": "forest_dead" }
-    },
-    ruined_city: {
-        speaker: "Jax",
-        text: "Look up. Those cracked skyscrapers look like hollowed-out tombs. Scavengers and automated drone snipers love these high vantage points. Wait, look over there—a fortified military gun store and a narrow, shadowy alleyway. Which way?",
-        img: "https://images.unsplash.com/photo-1536746803623-cef87080bfc8?auto=format&fit=crop&w=800&q=80",
-        voiceType: 'male',
-        theme: { bg: "#1c1d1f", panel: "#2b2d30", accent: "#f1c40f" },
-        hints: ["Enter the gun store", "Walk down the alley", "Scavenge the rusted cars", "Shout for help"],
-        branches: { "store": "city_yes_no", "alley": "city_yes_no", "cars": "city_yes_no", "shout": "city_dead" }
-    },
-    subway_metro: {
-        speaker: "Jax",
-        text: "It's completely pitch black down here, and the air smells like rusted iron. The broken train tracks plunge straight down into a subterranean void, but I see a flickering green emergency light over a maintenance security door.",
-        img: "https://images.unsplash.com/photo-1515165504669-423042074e6c?auto=format&fit=crop&w=800&q=80",
-        voiceType: 'male',
-        theme: { bg: "#0d0d0d", panel: "#1a1a1a", accent: "#95a5a6" },
-        hints: ["Check the maintenance room", "Walk down the tracks", "Turn on my flashlight", "Make some loud noise"],
-        branches: { "room": "metro_yes_no", "tracks": "metro_yes_no", "flashlight": "metro_yes_no", "noise": "metro_dead" }
-    },
-    desert_highway: {
-        speaker: "Jax",
-        text: "The twin suns are absolutely boiling our skin. The asphalt is completely melted. Look, there's a sand-buried old military transport truck on the left and a collapsing concrete diner on the right. Where do we seek shelter?",
-        img: "https://images.unsplash.com/photo-1547234935-80c7145ec969?auto=format&fit=crop&w=800&q=80",
-        voiceType: 'male',
-        theme: { bg: "#2c1e15", panel: "#3e2b1e", accent: "#e67e22" },
-        hints: ["Search the truck", "Go inside the diner", "Keep walking the road", "Drink the hot sand"],
-        branches: { "truck": "highway_yes_no", "diner": "highway_yes_no", "road": "highway_yes_no", "drink": "highway_dead" }
-    },
-    toxic_river: {
-        speaker: "Jax",
-        text: "This river is glowing with a sickening neon-green bioluminescence. The fumes are eating through my mask filter. There's a half-submerged wooden boat tied to a skull, and a unstable, rusted suspension bridge swaying above.",
-        img: "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=800&q=80",
-        voiceType: 'male',
-        theme: { bg: "#0f1f15", panel: "#193322", accent: "#00ff66" },
-        hints: ["Use the wooden boat", "Cross the rusty bridge", "Swim across the water", "Drink the green water"],
-        branches: { "boat": "river_yes_no", "bridge": "river_yes_no", "swim": "river_yes_no", "drink": "river_dead" }
-    },
-    hospital: {
-        speaker: "Elena (Wasteland Surgeon)",
-        text: "Halt! Do not take another step or I will blow your head off! This ward is heavily quarantined with a flesh-eating spore outbreak. But... I desperately need healthy muscle to help me harvest synthetic antibiotics. Will you help me, or do you intend to steal?",
-        img: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80",
-        voiceType: 'female',
-        theme: { bg: "#1a1f21", panel: "#272e30", accent: "#9b59b6" },
-        hints: ["Help the doctor", "Scavenge on my own", "Ask for medical supplies", "Attack the doctor instantly"],
-        branches: { "help": "hospital_yes_no", "scavenge": "hospital_yes_no", "ask": "hospital_yes_no", "attack": "hospital_dead" }
-    },
-    laboratory: {
-        speaker: "Dr. Vance (Crazed Synthesizer)",
-        text: "Intruders! Fools! You stumble blindly into my cleanroom and dare look upon my supreme creation? The synthetic DNA strain to restore the planetary ecosystem is right inside this glass capsule... but it requires an active neural sacrifice. Speak your intent!",
-        img: "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=800&q=80",
-        voiceType: 'female', 
-        theme: { bg: "#0f171e", panel: "#182430", accent: "#3498db" },
-        hints: ["Ask for the cure", "Threaten the scientist", "Steal the chemicals", "Drink the mystery serum"],
-        branches: { "cure": "lab_yes_no", "threaten": "lab_yes_no", "steal": "lab_yes_no", "drink": "lab_dead" }
-    },
-
-    // --- 7 INSTA-DEATH BRANCHES ---
-    forest_dead: { 
-        speaker: "System Log", 
-        text: "The sudden burst of torch fire instantly attracted a pack of starving, blind mutated stalkers. Your throat is ripped out before you can even scream. CRITICAL FAILURE.", 
-        img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80", 
-        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
-        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
-    },
-    city_dead: { 
-        speaker: "System Log", 
-        text: "Your loud yelling echoed off the concrete ruins, alerting an armored scavenger warband. They locate your position, capture you, and throw you into the slave scrap-pits. CRITICAL FAILURE.", 
-        img: "https://images.unsplash.com/photo-1504714146340-959fb01e2798?auto=format&fit=crop&w=800&q=80", 
-        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
-        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
-    },
-    metro_dead: { 
-        speaker: "System Log", 
-        text: "The heavy sonic vibrations of your shouting triggered a massive structural failure in the unstable tunnel ceiling. Thousands of tons of concrete rubble bury you completely. CRITICAL FAILURE.", 
-        img: "https://images.unsplash.com/photo-1531266752426-aad472b7bbf4?auto=format&fit=crop&w=800&q=80", 
-        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
-        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
-    },
-    highway_dead: { 
-        speaker: "System Log", 
-        text: "You fell to your knees and frantically consumed the boiling radioactive sand. Your inner throat and stomach burn violently from internal thermal shock. CRITICAL FAILURE.", 
-        img: "https://images.unsplash.com/photo-1601933470484-4421c3dbef63?auto=format&fit=crop&w=800&q=80", 
-        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
-        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
-    },
-    river_dead: { 
-        speaker: "System Log", 
-        text: "The industrial acid concentrations in the green sludge are too extreme. Your environment suit dissolves in seconds, followed swiftly by your organic tissue. CRITICAL FAILURE.", 
-        img: "https://images.unsplash.com/photo-1599740831618-e30b35520e7e?auto=format&fit=crop&w=800&q=80", 
-        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'male',
-        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
-    },
-    hospital_dead: { 
-        speaker: "Elena", 
-        text: "You drew your blade like an uneducated thug. Elena pulls an automated dual-barrel flak gun from beneath her coat and vaporises your torso instantly. CRITICAL FAILURE.", 
-        img: "https://images.unsplash.com/photo-1584036561566-baf241f2d449?auto=format&fit=crop&w=800&q=80", 
-        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'female',
-        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
-    },
-    lab_dead: { 
-        speaker: "Dr. Vance", 
-        text: "You blindly swallowed the raw chemical serum. Your cellular biology completely destabilises, transforming your internal organs into liquefied black carbon sludge. CRITICAL FAILURE.", 
-        img: "https://images.unsplash.com/photo-1614853038014-c24a7fefd6a0?auto=format&fit=crop&w=800&q=80", 
-        hints: ["Restart Simulation"], branches: {"restart": "main"}, voiceType: 'female',
-        theme: { bg: "#1a0000", panel: "#2d0000", accent: "#ff0000" }
-    },
-
-    // --- 7 UNIQUE YES/NO CRITICAL CHOICES ---
-    forest_yes_no: {
-        speaker: "Jax", text: "Incredible, we bypassed the predator! Look here... a military cryogenic container hidden beneath the roots. It holds an active terraforming device that could clean this sector. Do we force it open? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#09140e", panel: "#12241a", accent: "#2ecc71" },
-        hints: ["Say YES", "Say NO"], branches: { "yes": "forest_win", "no": "forest_lose" }
-    },
-    city_yes_no: {
-        speaker: "Jax", text: "We successfully reached the roof transmission array! A high-frequency radio signal is looping from a floating naval super-carrier off the coast, promising infinite food. Do we transmit our exact location coordinates? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1543269664-76bc3997d9ea?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#1c1d1f", panel: "#2b2d30", accent: "#f1c40f" },
-        hints: ["Say YES", "Say NO"], branches: { "yes": "city_win", "no": "city_lose" }
-    },
-    subway_metro: {
-        speaker: "Jax", text: "The maintenance console works! There is an old heavy armored freight train on track three with full electrical fuel reserves. Do we flip the main engine lever to break out of the dark? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#0d0d0d", panel: "#1a1a1a", accent: "#95a5a6" },
-        hints: ["Say YES", "Say NO"], branches: { "yes": "metro_win", "no": "metro_lose" }
-    },
-    highway_yes_no: {
-        speaker: "Jax", text: "An armed trade convoy of the New Oasis Federation just stopped their engines. Their commander offers to transport us to their safe citadel, but they demand all our weapons and gear right now. Do we trust them? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#2c1e15", panel: "#3e2b1e", accent: "#e67e22" },
-        hints: ["Say YES", "Say NO"], branches: { "yes": "highway_win", "no": "highway_lose" }
-    },
-    river_yes_no: {
-        speaker: "Jax", text: "We navigated the acidic waves perfectly! On this opposite bank lies an underground biodome completely untouched by radiation fallout, full of clean fruit. Do we settle down here forever and build a home? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#0f1f15", panel: "#193322", accent: "#00ff66" },
-        hints: ["Say YES", "Say NO"], branches: { "yes": "river_win", "no": "river_lose" }
-    },
-    hospital_yes_no: {
-        speaker: "Elena", text: "The spore sample matches! The synthesis is complete. I hold enough universal anti-plague serum to cure your entire bunker group. In exchange, I demand to join your team as chief officer. Do we shake on this deal? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1579684389782-64d84b5e901a?auto=format&fit=crop&w=800&q=80", voiceType: 'female',
-        theme: { bg: "#1a1f21", panel: "#272e30", accent: "#9b59b6" },
-        hints: ["Say YES", "Say NO"], branches: { "yes": "hospital_win", "no": "hospital_lose" }
-    },
-    lab_yes_no: {
-        speaker: "Dr. Vance", text: "The biological catalyst is stable. I will hand you the atmospheric cure canister, but you must willingly leave your companion Jax behind in my pods for genetic experimentation. Do you accept my dark condition? Say YES or NO.",
-        img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80", voiceType: 'female',
-        theme: { bg: "#0f171e", panel: "#182430", accent: "#3498db" },
-        hints: ["Say YES", "Say NO"], branches: { "yes": "lab_win", "no": "lab_lose" }
-    },
-
-    // --- UNIQUE ENDINGS (7 WIN / 7 LOSE) ---
-    forest_win: {
-        speaker: "Narrator", text: "THE GREEN REBORN: The cryogenic matrix released cleansing nano-spores. The toxic fog rapidly dispersed, transforming the dark woods into a blossoming green paradise. You and Jax establish the first sustainable settlement of the new age. VICTORY.",
-        img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#051c0e", panel: "#0d381e", accent: "#2ecc71" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    forest_lose: {
-        speaker: "Narrator", text: "LOST IN THE SHADOWS: You left the capsule sealed. As you walked away, an unnatural radioactive blizzard swept through the branches, blinding your path. You and Jax slowly froze to death in the eternal green maze. RECONNAISSANCE OVER.",
-        img: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    city_win: {
-        speaker: "Narrator", text: "THE NAVAL SANCTUARY: The naval super-carrier confirmed your coordinates! Within hours, a vertical-takeoff heavy aircraft arrived on the skyscraper roof, extracting you both to a massive, thriving ocean city. VICTORY.",
-        img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#102533", panel: "#193b52", accent: "#3498db" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    city_lose: {
-        speaker: "Narrator", text: "ASH AND CINDERS: Out of paranoia, you kept radio silence. An hour later, an automated orbital defense satellite detected the old terminal's power surge and fired a tactical missile, turning the skyline to dust. RECONNAISSANCE OVER.",
-        img: "https://images.unsplash.com/photo-1531266752426-aad472b7bbf4?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    metro_win: {
-        speaker: "Narrator", text: "THE UNDERGROUND CITADEL: The armored train accelerated, smashing brutally through a concrete barricade at the end of the line. You broke out into an immense underground hydro-farm metropolis inhabited by thousands. VICTORY.",
-        img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#111", panel: "#222", accent: "#9b59b6" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    metro_lose: {
-        speaker: "Narrator", text: "CHOKED BY THE DARK: You abandoned the train. Minutes later, your flashlight batteries expired. In the absolute dark, a swarm of crawling blind ghouls surrounded you, sealing your fate in the deep earth. RECONNAISSANCE OVER.",
-        img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    highway_win: {
-        speaker: "Narrator", text: "CITADEL OF EDEN: The convoy commander kept his word. Completely unarmed but safe, you are escorted inside the massive blast gates of 'New Eden', an advanced city with real solar grids and clean running water. VICTORY.",
-        img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#3d2a1d", panel: "#5c3f2b", accent: "#e67e22" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    highway_lose: {
-        speaker: "Narrator", text: "DESERT MIRAGE: You refused the deal and kept your guns. The convoy drove away, leaving you to wander. By noon, your water reserves evaporated, and you collapsed under the unrelenting heat of the highway. RECONNAISSANCE OVER.",
-        img: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    river_win: {
-        speaker: "Narrator", text: "THE GREEN OASIS: You chose peace. The biodome soil proved exceptionally rich and non-toxic. Over the next decade, you, Jax, and other survivors engineer an agricultural empire that could save the world. VICTORY.",
-        img: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#0d2b14", panel: "#195427", accent: "#2ecc71" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    river_lose: {
-        speaker: "Narrator", text: "THE RAD-BURNT WANDERERS: You pushed further down the river banks. However, the microscopic acid vapors from your initial crossing had already compromised your lung tissue. You slowly pass away peacefully in your sleep. RECONNAISSANCE OVER.",
-        img: "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    hospital_win: {
-        speaker: "Narrator", text: "THE ANTIDOTE DAWN: Dr. Elena integrated perfectly into your home faction. Her mass-production of the synthetic antibiotics cleansed your colony's bloodline, making your bunker population fully immune to the global blight. VICTORY.",
-        img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#232b2b", panel: "#354242", accent: "#1abc9c" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    hospital_lose: {
-        speaker: "Narrator", text: "THE SPORE PLAGUE: You rejected her terms and left empty-handed. Three weeks later, a rogue scavenger inadvertently brought the bio-spores into your home bunker. Without a professional physician, everyone withered away. RECONNAISSANCE OVER.",
-        img: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    lab_win: {
-        speaker: "Narrator", text: "THE IMMORTAL GUILT: You saved humanity by deploying the master cure canister globally, but at a horrifying personal cost. You survive as the absolute legendary savior of Earth, but carry the eternal ghost of Jax's screams forever. BITTERSWEET VICTORY.",
-        img: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#161d24", panel: "#25323d", accent: "#e74c3c" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
-    },
-    lab_lose: {
-        speaker: "Narrator", text: "LABORATORY TERMINATION: You refused to betray your brother-in-arms. Infuriated, Dr. Vance triggered the cleanroom's internal plasma purification grid, turning you, Jax, and the planetary antidote into instant atomic ash. RECONNAISSANCE OVER.",
-        img: "https://images.unsplash.com/photo-1532187863486-abf9d39d6618?auto=format&fit=crop&w=800&q=80", voiceType: 'male',
-        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" }, hints: ["Simulate Anew"], branches: { "simulate": "main" }
+        hints: ["Go to the forest", "Explore the city", "Enter the metro", "Take the highway", "Follow the river", "Search the hospital", "Investigate the lab", "Infiltrate the base", "Cross the swamp", "Check the cathedral"]
     }
 };
 
-let currentState = "main";
-let bgmStarted = false;
+// Hàm tiện ích tạo dữ liệu tự động cho 10 nhánh chuẩn cấu trúc phân lớp không trùng lặp
+const sectorsConfig = [
+    { id: "forest", name: "Dark Forest", img: "https://images.unsplash.com/photo-1511497584788-876760111969?w=800", bg: "#09140e", p: "#12241a", a: "#2ecc71", words: ["climb", "hide", "run", "scout", "burn"], sfx: ['click','click','click','alert','gunshot'] },
+    { id: "city", name: "Ruined City", img: "https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800", bg: "#1a1b1e", p: "#25272c", a: "#f1c40f", words: ["store", "alley", "roof", "snipe", "scream"], sfx: ['click','click','click','alert','gunshot'] },
+    { id: "metro", name: "Subway Metro", img: "https://images.unsplash.com/photo-1551135049-8a33b5883817?w=800", bg: "#08080a", p: "#121317", a: "#95a5a6", words: ["track", "room", "tunnel", "vent", "blast"], sfx: ['click','click','click','alert','explosion'] },
+    { id: "highway", name: "Desert Highway", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", bg: "#231810", p: "#332318", a: "#e67e22", words: ["truck", "diner", "bridge", "drive", "dig"], sfx: ['click','click','click','alert','explosion'] },
+    { id: "river", name: "Toxic River", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800", bg: "#07170f", p: "#11261a", a: "#00ff66", words: ["boat", "swim", "raft", "bridge", "drink"], sfx: ['click','click','click','alert','alert'] },
+    { id: "hospital", name: "Abandoned Hospital", img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800", bg: "#14191c", p: "#1f272b", a: "#9b59b6", words: ["ward", "pharmacy", "clinic", "icu", "sabotage"], sfx: ['click','click','click','alert','gunshot'] },
+    { id: "lab", name: "Secret Laboratory", img: "https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800", bg: "#0a131a", p: "#12202b", a: "#3498db", words: ["serum", "vault", "terminal", "pod", "smash"], sfx: ['click','click','click','alert','explosion'] },
+    { id: "base", name: "Military Base", img: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800", bg: "#191a16", p: "#282a22", a: "#78e08f", words: ["armory", "hangar", "bunker", "tower", "breach"], sfx: ['click','click','click','alert','gunshot'] },
+    { id: "swamp", name: "Overgrown Swamp", img: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800", bg: "#0b120c", p: "#142116", a: "#10ac84", words: ["mud", "shack", "mangrove", "wade", "poison"], sfx: ['click','click','click','alert','alert'] },
+    { id: "cathedral", name: "Crumbling Cathedral", img: "https://images.unsplash.com/photo-1548625361-155deee2627e?w=800", bg: "#1c141a", p: "#2d2029", a: "#e84118", words: ["altar", "crypt", "tower", "relic", "desecrate"], sfx: ['click','click','click','alert','gunshot'] }
+];
 
-// --- ADVANCED SPEECH RECOGNITION CONFIG ---
+sectorsConfig.forEach(s => {
+    // 1. Tạo node nhánh chính (Mức 1)
+    storyData[`b_${s.id}`] = {
+        speaker: s.id === "hospital" ? "Elena" : (s.id === "lab" ? "Dr. Vance" : "Jax"),
+        text: `We entered the ${s.name}. The atmosphere is heavy. We have 5 tactical choices here. Look at the data grid. What is our play?`,
+        img: s.img,
+        voiceType: (s.id === "hospital" || s.id === "lab") ? 'female' : 'male',
+        theme: { bg: s.bg, panel: s.p, accent: s.a },
+        status: { health: -10, sanity: -5, supplies: -10 },
+        hints: [`Use ${s.words[0]} approach`, `Try ${s.words[1]} route`, `Execute ${s.words[2]} tactic`, `Initiate ${s.words[3]} scanning`, `Risk ${s.words[4]} override`],
+        branches: {},
+        sfxTrigger: 'click'
+    };
+    
+    // Gán 5 nhánh phản hồi theo cấu trúc chuẩn bài toán yêu cầu:
+    // Thỏa mãn: Trong 5 nhánh -> 3 nhánh được chọn đi tiếp (2 đi tới node Yes/No, 1 đi tới Fast Ending cốt truyện). 2 nhánh còn lại là Fast Death tức thì.
+    s.words.forEach((w, idx) => {
+        const key = w.toLowerCase();
+        if (idx === 0 || idx === 1) {
+            // 2 nhánh dẫn tới tổ hợp Yes/No quyết định (Level 2)
+            storyData[`b_${s.id}`].branches[key] = `node_${s.id}_yn_${idx}`;
+            
+            storyData[`node_${s.id}_yn_${idx}`] = {
+                speaker: "System Display",
+                text: `Tactical option [${w.toUpperCase()}] succeeded! Scanning localized core... A critical anomaly detected. Do you authorize final containment sequence? Say YES or NO!`,
+                img: s.img,
+                voiceType: 'male',
+                theme: { bg: s.bg, panel: s.p, accent: s.a },
+                status: { health: 10, sanity: 20, supplies: 0 },
+                hints: ["Say YES", "Say NO"],
+                branches: { "yes": `end_${s.id}_win`, "no": `end_${s.id}_lose` },
+                sfxTrigger: s.sfx[idx]
+            };
+        } else if (idx === 2) {
+            // 1 nhánh dẫn thẳng đến kết cục nhanh (Fast Ending cốt truyện)
+            storyData[`b_${s.id}`].branches[key] = `end_${s.id}_fast`;
+            
+            storyData[`end_${s.id}_fast`] = {
+                speaker: "Narrator",
+                text: `The choice to [${w.toUpperCase()}] immediately bypassed the sector's power matrix! You managed an automated swift extraction back to safety. FAST ENDING SECURED.`,
+                img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800",
+                voiceType: 'male',
+                theme: { bg: "#051c0e", panel: "#0d381e", accent: "#2ecc71" },
+                status: { health: 0, sanity: 50, supplies: 20 },
+                hints: ["Simulate Again"],
+                branches: { "simulate": "main" },
+                sfxTrigger: s.sfx[idx]
+            };
+        } else {
+            // 2 nhánh còn lại dẫn đến Cái chết lập tức (Insta-Death/Fast Dead Ending)
+            storyData[`b_${s.id}`].branches[key] = `end_${s.id}_dead_${idx}`;
+            
+            storyData[`end_${s.id}_dead_${idx}`] = {
+                speaker: "Terminal Alert",
+                text: `FATAL ERROR: The choice [${w.toUpperCase()}] triggered an instantaneous kinetic strike or defense grid overload. Your neural signatures ceased. CRITICAL FAILURE / DEAD END.`,
+                img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
+                voiceType: 'male',
+                theme: { bg: "#2d0000", panel: "#1a0000", accent: "#ff0000" },
+                status: { health: -100, sanity: -100, supplies: -100 },
+                hints: ["Reboot System"],
+                branches: { "reboot": "main" },
+                sfxTrigger: s.sfx[idx] // Kích hoạt tiếng súng nổ/vụ nổ cực mạnh đã cấu hình
+            };
+        }
+    });
+
+    // 2. Tạo kết quả tổ hợp Độc nhất cho các đầu cuối Win/Lose (Unique Endings)
+    storyData[`end_${s.id}_win`] = {
+        speaker: "Narrator",
+        text: `EPILOGUE - SUCCESS IN ${s.name.toUpperCase()}: Your definitive YES decision clean-purged the regional bio-threat. Fresh oxygen cascades through the sector. YOU WIN!`,
+        img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800", voiceType: 'male',
+        theme: { bg: "#051c0e", panel: "#0d381e", accent: "#2ecc71" },
+        status: { health: 100, sanity: 100, supplies: 100 },
+        hints: ["Restart Simulation"], branches: { "restart": "main" }, sfxTrigger: 'click'
+    };
+    storyData[`end_${s.id}_lose`] = {
+        speaker: "Narrator",
+        text: `EPILOGUE - ABANDONED IN ${s.name.toUpperCase()}: You played it safe with a NO. The darkness permanently consumed the infrastructure, forcing you into exile. GAME OVER.`,
+        img: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=800", voiceType: 'male',
+        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" },
+        status: { health: 10, sanity: 0, supplies: 5 },
+        hints: ["Restart Simulation"], branches: { "restart": "main" }, sfxTrigger: 'alert'
+    };
+});
+
+// --- STATE MANAGEMENT & LOGIC GAME ---
+let currentState = "main";
+let historyStack = []; // Lưu trữ lịch sử lựa chọn để hỗ trợ tính năng Back (Undo) lập tức
+let currentStatus = { health: 100, sanity: 100, supplies: 100 };
+
+function updateUI(isUndo = false) {
+    const node = storyData[currentState];
+    const container = document.getElementById('game-container');
+
+    // 1. Áp dụng hiệu ứng Visual (VFX) dựa trên tính chất hành động
+    container.className = ""; // Reset class cũ
+    void container.offsetWidth; // Trigger reflow ép cập nhật CSS animation
+    
+    if (currentState.includes('_dead')) {
+        container.classList.add('shake', 'flash-red');
+    } else if (currentState.includes('_win') || currentState.includes('_fast')) {
+        container.classList.add('flash-green');
+    } else if (currentState !== 'main' && !isUndo) {
+        container.classList.add('flash-white');
+    }
+
+    // 2. Kích hoạt hiệu ứng âm thanh (SFX) tương ứng nếu có cấu hình
+    if (!isUndo && node.sfxTrigger) {
+        playSFX(node.sfxTrigger);
+    }
+
+    // 3. Cập nhật và tích lũy trạng thái Status của bản thân người dùng
+    if (!isUndo && node.status) {
+        currentStatus.health = Math.max(0, Math.min(100, currentStatus.health + node.status.health));
+        currentStatus.sanity = Math.max(0, Math.min(100, currentStatus.sanity + node.status.sanity));
+        currentStatus.supplies = Math.max(0, Math.min(100, currentStatus.supplies + node.status.supplies));
+    }
+    
+    // Hiển thị Status lên bảng điều khiển
+    document.getElementById('health-val').innerText = currentStatus.health + "%";
+    document.getElementById('sanity-val').innerText = currentStatus.sanity + "%";
+    document.getElementById('supply-val').innerText = currentStatus.supplies + "%";
+
+    // 4. Đồng bộ màu nền CSS biến đổi theo mảng vùng đất đang đứng
+    document.documentElement.style.setProperty('--bg-color', node.theme.bg);
+    document.documentElement.style.setProperty('--panel-bg', node.theme.panel);
+    document.documentElement.style.setProperty('--accent-color', node.theme.accent);
+
+    // 5. Cập nhật text nội dung kịch bản
+    document.getElementById('character-voice').innerText = node.speaker + ":";
+    document.getElementById('situation-text').innerText = node.text;
+    document.getElementById('story-img').src = node.img;
+    
+    // Quản lý trạng thái đóng/mở của thanh gợi ý hội thoại (Mặc định đóng, tự mở khi gặp Yes/No)
+    const detailsEl = document.getElementById('hints-details');
+    if (currentState.includes('_yn_')) {
+        detailsEl.open = true;
+        document.getElementById('hints-summary').innerText = "⚠️ SYSTEM COMMAND REQUIRED! Speak clearly:";
+    } else {
+        detailsEl.open = false;
+        document.getElementById('hints-summary').innerText = "💡 Show Speech Suggestions (Click to open)";
+    }
+
+    const hintsList = document.getElementById('hints-list');
+    hintsList.innerHTML = "";
+    node.hints.forEach(hint => {
+        let li = document.createElement('li');
+        li.innerText = hint;
+        li.onclick = () => {
+            document.getElementById('transcript').innerText = `[Click Input] "${hint}"`;
+            processInput(hint.toLowerCase());
+        };
+        hintsList.appendChild(li);
+    });
+
+    // 6. Cập nhật trạng thái nút Back (Undo)
+    document.getElementById('back-btn').disabled = (historyStack.length === 0);
+
+    // 7. Đồng bộ hệ thống nhạc nền ma mị thay đổi trạng thái theo cốt truyện
+    playCurrentStateBGM();
+
+    // 8. Đọc thoại AI
+    speak(node.text, node.voiceType);
+}
+
+// Tính năng Quay lại lựa chọn đã làm (Undo testing nhanh)
+function goBack() {
+    if (historyStack.length > 0) {
+        playSFX('click');
+        const previousState = historyStack.pop();
+        currentState = previousState.state;
+        currentStatus = { ...previousState.status }; // Phục hồi lại chỉ số status trước đó
+        updateUI(true);
+    }
+}
+
+function startListening() {
+    if (recognition) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        recognition.start();
+    }
+}
+
+function processInput(text) {
+    const node = storyData[currentState];
+    let matchedBranch = null;
+
+    for (const key in node.branches) {
+        if (text.includes(key)) {
+            matchedBranch = node.branches[key];
+            break;
+        }
+    }
+
+    if (matchedBranch) {
+        // Lưu lại dữ liệu trước khi chuyển đổi state mới sang historyStack
+        historyStack.push({
+            state: currentState,
+            status: { ...currentStatus }
+        });
+
+        currentState = matchedBranch;
+        updateUI();
+    } else {
+        document.getElementById('status').innerText = "Status: Static detected. Repeat.";
+        playSFX('alert');
+        speak("Transmission fuzzy. Repeat command.", node.voiceType);
+    }
+}
+
+// --- ENGINE NHẬN DIỆN GIỌNG NÓI ---
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition;
 if (SpeechRecognition) {
@@ -429,112 +548,42 @@ if (SpeechRecognition) {
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
-        document.getElementById('status').innerText = "Status: Listening carefully...";
+        document.getElementById('status').innerText = "Status: Listening...";
         document.getElementById('mic-btn').disabled = true;
-        autoPlayBGMOnInteraction();
     };
-
     recognition.onresult = (event) => {
         const speechToText = event.results[0][0].transcript.toLowerCase();
         document.getElementById('transcript').innerText = `You said: "${speechToText}"`;
         processInput(speechToText);
     };
-
-    recognition.onerror = (e) => {
-        document.getElementById('status').innerText = "Status: Connection dimmed. Try speaking again.";
+    recognition.onerror = () => {
+        document.getElementById('status').innerText = "Status: Error. Try again.";
         document.getElementById('mic-btn').disabled = false;
     };
-
     recognition.onend = () => {
         document.getElementById('status').innerText = "Status: Standby";
         document.getElementById('mic-btn').disabled = false;
     };
+} else {
+    alert("Web Speech API not fully supported. Please use Google Chrome.");
 }
 
-// --- CORE GAME ENGINE ---
-function updateUI() {
-    const node = storyData[currentState];
-    
-    // Dynamic Theme Transitions (Backgrounds and Accents matched perfectly to situations)
-    document.documentElement.style.setProperty('--bg-color', node.theme.bg);
-    document.documentElement.style.setProperty('--panel-bg', node.theme.panel);
-    document.documentElement.style.setProperty('--accent-color', node.theme.accent);
-
-    document.getElementById('character-voice').innerText = node.speaker + ":";
-    document.getElementById('situation-text').innerText = node.text;
-    document.getElementById('story-img').src = node.img;
-    
-    // Config suggestions panel: closed/collapsed by default for normal branches, open for binary branches
-    const detailsEl = document.getElementById('hints-details');
-    if (currentState.includes('yes_no')) {
-        detailsEl.open = true;
-        document.getElementById('hints-summary').innerText = "⚠️ Critical Decision Required! Choose your words:";
-    } else {
-        detailsEl.open = false;
-        document.getElementById('hints-summary').innerText = "💡 Show Speech Suggestions (Click to reveal)";
-    }
-
-    const hintsList = document.getElementById('hints-list');
-    hintsList.innerHTML = "";
-    node.hints.forEach(hint => {
-        let li = document.createElement('li');
-        li.innerText = hint;
-        li.onclick = () => {
-            document.getElementById('transcript').innerText = `[Clicked Hint] "${hint}"`;
-            processInput(hint.toLowerCase());
-        };
-        hintsList.appendChild(li);
-    });
-
-    // Run high-quality local text-to-speech engine
-    speak(node.text, node.voiceType);
-}
-
-function startListening() {
-    if (recognition) recognition.start();
-}
-
-function processInput(text) {
-    const node = storyData[currentState];
-    let matchedBranch = null;
-
-    // Advanced token matching
-    for (const key in node.branches) {
-        if (text.includes(key)) {
-            matchedBranch = node.branches[key];
-            break;
-        }
-    }
-
-    if (matchedBranch) {
-        currentState = matchedBranch;
-        updateUI();
-    } else {
-        document.getElementById('status').innerText = "Status: Transmission unclear. Repeat command.";
-        speak("I couldn't clarify that transmission. Repeat your choice clearly.", node.voiceType);
-    }
-}
-
-// --- OPTIMISED CINEMATIC SPEECH ENGINE (GOOGLE AI Fallbacks) ---
+// --- ENGINE PHÁT GIỌNG AI CHUẨN ĐIỆN ẢNH ---
 function speak(text, gender) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel(); 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
-        
-        // Slower speech rate and slightly lower pitch mimic premium human studio generation
-        utterance.rate = 0.90; 
+        utterance.rate = 0.88; // Đọc chậm rãi, nhấn nhá tạo chiều sâu không khí hậu tận thế
         
         const voices = window.speechSynthesis.getVoices();
-        
-        // Primary lookup: Premium cloud-based Google voices integrated into modern browsers
         let selectedVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en'));
         
         if (gender === 'female') {
-            utterance.pitch = 1.02;
+            utterance.pitch = 1.0;
             selectedVoice = voices.find(v => v.name.includes('Google US English Female') || v.name.includes('Zira') || (v.lang.includes('en') && v.name.includes('Female'))) || selectedVoice;
         } else {
-            utterance.pitch = 0.88; // Deep resonant male voice for Jax
+            utterance.pitch = 0.82; // Hạ giọng trầm sâu cho Jax
             selectedVoice = voices.find(v => v.name.includes('Google US English Male') || v.name.includes('David') || (v.lang.includes('en') && v.name.includes('Male'))) || selectedVoice;
         }
         
@@ -543,43 +592,15 @@ function speak(text, gender) {
     }
 }
 
-// --- AUDIO BACKGROUND CONTROL (BGM) ---
-function toggleBGM() {
-    const bgm = document.getElementById('bgm');
-    const btn = document.getElementById('bgm-btn');
-    if (bgm.paused) {
-        bgm.play().catch(e => console.log("Audio play blocked by security constraints. Action interaction required first."));
-        btn.innerText = "🔇 Mute BGM Music";
-        btn.style.background = "#e74c3c";
-        bgmStarted = true;
-    } else {
-        bgm.pause();
-        btn.innerText = "🎵 Play Ambient BGM";
-        btn.style.background = "#2f3542";
-    }
-}
-
-function autoPlayBGMOnInteraction() {
-    if (!bgmStarted) {
-        const bgm = document.getElementById('bgm');
-        bgm.play().then(() => {
-            document.getElementById('bgm-btn').innerText = "🔇 Mute BGM Music";
-            document.getElementById('bgm-btn').style.background = "#e74c3c";
-            bgmStarted = true;
-        }).catch(() => {});
-    }
-}
-
-// Trigger initial startup
+// Khởi chạy hệ thống sau khi voice dữ liệu sẵn sàng
 window.speechSynthesis.onvoiceschanged = () => {
-    if(document.getElementById('situation-text').innerText === "Initialising wasteland coordinates...") {
+    if(document.getElementById('situation-text').innerText === "Booting simulation protocols...") {
         updateUI();
     }
 };
-
 window.onload = () => {
     setTimeout(() => {
-        if(document.getElementById('situation-text').innerText === "Initialising wasteland coordinates...") {
+        if(document.getElementById('situation-text').innerText === "Booting simulation protocols...") {
             updateUI();
         }
     }, 800);
