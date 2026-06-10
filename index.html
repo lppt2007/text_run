@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Đồng Tháp Tour Guide - Interactive Speaking System</title>
+    <title>Cao Lãnh Tour Guide - Interactive Speaking System</title>
     <style>
         :root {
-            --primary-color: #1b4d3e; /* Màu xanh lá sen Đồng Tháp trầm ấm */
+            --primary-color: #1b4d3e; /* Đồng Tháp Lotus Leaf Green */
             --primary-hover: #113327;
             --bg-color: #f4f7f5;
             --card-bg: #ffffff;
@@ -62,7 +62,7 @@
         
         .splash-effect { animation: splashAnim 0.6s ease-out; }
         @keyframes splashAnim {
-            0% { box-shadow: inset 0 0 0 0px var(--water-color); filter: brightness(1.5); }
+            0% { box-shadow: inset 0 0 0 0px var(--water-color); filter: brightness(1.4); }
             100% { box-shadow: inset 0 0 0 100px rgba(41, 128, 185, 0); filter: brightness(1); }
         }
 
@@ -85,7 +85,6 @@
             margin-bottom: 12px;
         }
 
-        /* --- DASHBOARD MONITOR --- */
         .dashboard-bar {
             display: flex;
             justify-content: space-between;
@@ -103,7 +102,7 @@
 
         .media-container {
             width: 100%;
-            height: 240px;
+            height: 230px;
             background-color: #edf2f7;
             border-radius: 14px;
             overflow: hidden;
@@ -133,7 +132,6 @@
             margin-bottom: 4px;
             font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .story-text {
@@ -162,18 +160,18 @@
             margin: 8px 0;
             font-size: 0.9rem;
             color: #34495e;
-            padding: 8px 10px;
-            background: rgba(255,255,255,0.7);
-            border-radius: 6px;
-            border: 1px solid rgba(226, 116, 32, 0.1);
-            line-height: 1.35;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.85);
+            border-radius: 8px;
+            border: 1px solid rgba(226, 116, 32, 0.15);
+            line-height: 1.4;
             cursor: pointer;
             transition: all 0.2s ease;
         }
         .option-line:hover {
             background: #fff;
             border-color: var(--accent-color);
-            transform: translateX(3px);
+            transform: translateX(4px);
         }
 
         .controls {
@@ -197,19 +195,9 @@
             justify-content: center;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s;
         }
 
-        .voice-btn:active {
-            background-color: var(--primary-hover);
-            transform: scale(0.98);
-        }
-
-        .voice-btn:disabled {
-            background-color: #cbd5e0;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
+        .voice-btn:disabled { background-color: #cbd5e0; cursor: not-allowed; }
 
         .utility-btn {
             background-color: transparent;
@@ -220,11 +208,6 @@
             border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
-        }
-        .utility-btn:hover:not(:disabled) {
-            background: #f1f2f6;
-            color: var(--text-main);
         }
         .utility-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -241,16 +224,14 @@
         .status-active { color: var(--accent-color); font-weight: 600; animation: pulse 1.5s infinite; }
         .status-success { color: var(--success-color); font-weight: 600; }
         .status-error { color: var(--danger-color); font-weight: 600; }
-
         .transcript-zone { margin-top: 4px; font-size: 0.8rem; color: var(--text-muted); }
         .transcript-text { font-weight: bold; color: var(--danger-color); }
 
         #bgm-toggle-btn {
             position: absolute; top: 15px; right: 15px;
-            background: rgba(255,255,255,0.8); border: 1px solid #ccc;
-            border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer;
+            background: rgba(255,255,255,0.9); border: 1px solid #1b4d3e;
+            border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; cursor: pointer; font-weight: bold;
         }
-
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
     </style>
 </head>
@@ -260,17 +241,17 @@
     <button id="bgm-toggle-btn" onclick="toggleBGM()">🎵 BGM: Off</button>
     
     <header>
-        <h1>🎙️ Đồng Tháp Tour Guide</h1>
-        <p>Interactive English Guiding System</p>
+        <h1>🎙️ Cao Lãnh Tour Guide</h1>
+        <p>Interactive English Branching System</p>
     </header>
 
     <div class="dashboard-bar">
-        <div>⭐ Service Score: <span id="score-val">10/10</span></div>
+        <div>⭐ Score: <span id="score-val">10/10</span></div>
         <div>🌤️ Weather: <span id="weather-val">Loading...</span></div>
     </div>
         
     <div class="media-container">
-        <img id="scenery-img" src="" alt="Destination">
+        <img id="scenery-img" src="" alt="Destination View">
     </div>
 
     <div class="character-bubble">
@@ -279,7 +260,7 @@
     </div>
 
     <div class="interaction-panel" id="interaction-box">
-        <p>🔊 Read Aloud Your Tour Presentation:</p>
+        <p id="panel-title">🔊 Speak Your Tour Presentation:</p>
         <div id="options-list"></div>
     </div>
 
@@ -292,299 +273,400 @@
     </div>
         
     <div class="status-box">
-        <div id="status-text">Ready. Please allow microphone permission when prompted.</div>
+        <div id="status-text">Ready. Activate microphone to start.</div>
         <div class="transcript-zone">System heard: <span id="transcript-text" class="transcript-text">...</span></div>
     </div>
 </div>
 
 <script>
-// --- WEB AUDIO API SYNTHESIZER ENGINE ---
+// --- CHỈNH SỬA & THIẾT KẾ LẠI BGM CHUẨN AUDIO CONTEXT ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playSFX(type) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const now = audioCtx.currentTime;
-
-    if (type === 'click') {
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.frequency.setValueAtTime(500, now); gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-        osc.start(); osc.stop(now + 0.06);
-    } else if (type === 'splash') {
-        // Tạo tiếng nước văng xối xả bằng nhiễu trắng lọc băng tần
-        const bufferSize = audioCtx.sampleRate * 0.5;
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-        const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
-        const filter = audioCtx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.value = 1200;
-        const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0.6, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-        noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-        noise.start(); noise.stop(now + 0.5);
-    } else if (type === 'rain') {
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'triangle'; osc.frequency.setValueAtTime(90, now);
-        gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(now + 0.6);
-    } else if (type === 'alert') {
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(220, now);
-        gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(now + 0.3);
-    } else if (type === 'applause') {
-        // Âm thanh chúc mừng/tiền bo leng keng
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'sine'; osc.frequency.setValueAtTime(1200, now);
-        osc.frequency.exponentialRampToValueAtTime(1800, now + 0.3);
-        gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(now + 0.4);
-    }
-}
-
-// Hệ thống phát BGM giả lập (Acoustic Nature Vibe) không phụ thuộc mạng
 let bgmInterval = null;
 let isBGMOn = false;
+let bgmTick = 0;
+
 function toggleBGM() {
     isBGMOn = !isBGMOn;
     document.getElementById('bgm-toggle-btn').innerText = isBGMOn ? "🎵 BGM: Active" : "🎵 BGM: Off";
     if (isBGMOn) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         bgmInterval = setInterval(() => {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
             const now = audioCtx.currentTime;
-            const notes = [293.66, 329.63, 392.00, 440.00]; // Hợp âm G Major tươi mát vùng sông nước
-            const note = notes[Math.floor(Math.random() * notes.length)];
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = 'sine'; osc.frequency.setValueAtTime(note, now);
-            gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.04, now + 0.2);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(now + 1.3);
-        }, 600);
+            // Tạo tổ hợp nốt guitar mộc mạc âm lượng cân bằng rõ ràng (G-Major Pentatonic)
+            const bassline = [146.83, 164.81, 196.00, 220.00]; 
+            const melody = [293.66, 329.63, 392.00, 440.00, 587.33];
+            
+            if (bgmTick % 4 === 0) {
+                const oscB = audioCtx.createOscillator(); const gainB = audioCtx.createGain();
+                oscB.type = 'triangle'; oscB.frequency.setValueAtTime(bassline[Math.floor(Math.random()*bassline.length)], now);
+                gainB.gain.setValueAtTime(0, now); gainB.gain.linearRampToValueAtTime(0.12, now + 0.2);
+                gainB.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+                oscB.connect(gainB); gainB.connect(audioCtx.destination);
+                oscB.start(); oscB.stop(now + 1.9);
+            }
+            
+            const oscM = audioCtx.createOscillator(); const gainM = audioCtx.createGain();
+            oscM.type = 'sine'; oscM.frequency.setValueAtTime(melody[Math.floor(Math.random()*melody.length)], now);
+            gainM.gain.setValueAtTime(0, now); gainM.gain.linearRampToValueAtTime(0.08, now + 0.08);
+            gainM.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+            oscM.connect(gainM); gainM.connect(audioCtx.destination);
+            oscM.start(); oscM.stop(now + 0.7);
+            bgmTick++;
+        }, 450);
     } else {
         clearInterval(bgmInterval);
     }
 }
 
-// --- DỮ LIỆU KỊCH BẢN ĐA NHÁNH (10 ĐIỂM THAM QUAN + 2 ĐIỂM LAN MAN + SỰ CỐ) ---
+function playSFX(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const now = audioCtx.currentTime;
+    if (type === 'splash') {
+        const bufferSize = audioCtx.sampleRate * 0.4;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.value = 1000;
+        const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        noise.start(); noise.stop(now + 0.4);
+    } else if (type === 'alert') {
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now);
+        gain.gain.setValueAtTime(0.25, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.3);
+    } else if (type === 'applause') {
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(900, now); osc.frequency.exponentialRampToValueAtTime(1500, now + 0.3);
+        gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.4);
+    }
+}
+
+// --- DỮ LIỆU KỊCH BẢN ĐA NHÁNH 10 ĐỊA ĐIỂM + 4 PHASES ---
 const scriptTree = {
     'start': {
-        text: 'John: "Hello tour guide! I am so excited to explore Cao Lãnh, Đồng Tháp today. Where are we going first? Please give me an inspiring choice!"',
+        text: 'John: "Hello! I am ready to explore Cao Lãnh, Đồng Tháp. Can you open your destination checklist and suggest where we should head first?"',
         img: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800',
-        weather: '☀️ Sunny',
+        weather: '☀️ Clear Sky',
+        isStartNode: true,
         keywords: {
-            'sac': 'relic_sac', 'quyt': 'relic_quyt', 'giong': 'eco_giong', 'chim': 'park_chim', 'dec': 'flower_sa_dec',
-            'le': 'house_huynh', 'pagoda': 'lotus_pagoda', 'bridge': 'park_bridge', 'thap': 'relic_thap', 'museum': 'museum_dt',
-            'crypto': 'gossip_crypto', 'girlfriend': 'gossip_personal'
-        },
-        options: [
-            "We will visit Nguyen Sinh Sac Relic Area.",
-            "Let's explore the historic Xeo Quyt Relic Area.",
-            "We should go to Gao Giong Eco-tourism Area.",
-            "How about seeing Tram Chim National Park?",
-            "Let's enjoy Sa Dec Flower Village fields.",
-            "We can view Huynh Thuy Le Ancient House.",
-            "Let's visit Phuoc Kien Lotus Pagoda shrine.",
-            "We will visit Cao Lanh Bridge Park walkway.",
-            "We should discover ancient Go Thap Relic.",
-            "Let's investigate the historical Dong Thap Museum.",
-            "[Distraction] Let's talk about my cryptocurrency investments.",
-            "[Distraction] Can I tell you about my toxic ex-girlfriend?"
-        ]
+            'sac': 'relic_sac_intro', 'quyt': 'relic_quyt_intro', 'giong': 'eco_giong_intro', 'chim': 'park_chim_intro', 'sa dec': 'flower_sadec_intro',
+            'huynh': 'house_huynh_intro', 'lotus': 'pagoda_lotus_intro', 'bridge': 'park_bridge_intro', 'thap': 'site_gothap_intro', 'museum': 'museum_dt_intro',
+            'bitcoin': 'distract_crypto', 'ex': 'distract_personal'
+        }
     },
-    // 2 Nhánh giới thiệu lan man (Trừ điểm phục vụ ngay)
-    'gossip_crypto': {
-        text: 'John: "Wait, I paid for a historical tour, not financial advice! Why are you wasting time talking about Bitcoin? This is highly unprofessional..."',
-        img: 'https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=800',
-        weather: '☁️ Cloudy', scoreModifier: -3, vfx: 'shake', sfx: 'alert',
-        keywords: { 'sorry': 'start' },
-        options: ["I am deeply sorry, let's select a proper location now."]
-    },
-    'gossip_personal': {
-        text: 'John: "Uh... it is extremely awkward to hear about your relationship problems right now. Please focus on the tour or I will lower your rating."',
-        img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800',
-        weather: '☁️ Cloudy', scoreModifier: -3, vfx: 'shake', sfx: 'alert',
-        keywords: { 'apologize': 'start' },
-        options: ["I apologize for being unprofessional, let's pick a site."]
-    },
+    // Distractions
+    'distract_crypto': { text: 'John: "Why are we discussing Bitcoin on a cultural tour? Highly unprofessional!"', img: 'https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=800', weather: '☁️ Overcast', scoreModifier: -3, keywords: { 'back': 'start' }, options: ["Let's go back and select a proper historical spot."] },
+    'distract_personal': { text: 'John: "Hearing about your ex-relationship is extremely awkward. Let\'s stick to guiding!"', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800', weather: '☁️ Overcast', scoreModifier: -3, keywords: { 'back': 'start' }, options: ["I apologize, let's look at the location list."] },
 
-    // 10 ĐIỂM THAM QUAN CHÍNH (Mỗi điểm rẽ nhánh gồm 2 lượt thoại + 1 tình huống phát sinh)
-    'relic_sac': {
-        text: 'John: "Wow, this sanctuary looks so peaceful. Who is honored here?"',
+    // 10 ĐỊA ĐIỂM CHÍNH CHI TIẾT
+    'relic_sac_intro': {
+        text: 'John: "We are at Nguyen Sinh Sac Relic Area. Can you introduce this solemn sanctuary?"',
         img: 'https://images.unsplash.com/photo-1548625361-155deee2627e?w=800', weather: '☀️ Sunny',
-        keywords: { 'father': 'relic_sac_2' },
-        options: ["This pays tribute to Uncle Ho's father, Deputy Doctor Nguyen Sinh Sac."]
+        options: [
+            "This complex pays tribute to Deputy Doctor Nguyen Sinh Sac, the father of President Ho Chi Minh.",
+            "It features a stylized lotus-shaped tomb architecture and a peaceful ornamental fish pond.",
+            "Visitors come here to learn about a great patriotic scholar who dedicated his life to citizens.",
+            "It holds historical structures, including an identical replica of Uncle Ho's stilt house.",
+            "[Wrong] This area is actually a modern dynamic water park filled with extreme rollercoasters."
+        ],
+        keywords: { 'father': { next: 'relic_sac_c1' }, 'lotus': { next: 'relic_sac_c1' }, 'scholar': { next: 'relic_sac_c1' }, 'stilt house': { next: 'relic_sac_c1' }, 'water park': { next: 'relic_sac_c1', wrong: true } }
     },
-    'relic_sac_2': {
-        text: 'John: "Marvelous architecture. Oh no, a heavy wind blew my tourist map directly into the security pond! What should we do?"',
-        img: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800', weather: '💨 Windy', sfx: 'rain',
-        keywords: { 'jump': 'relic_sac_bad', 'buy': 'relic_sac_good' },
-        options: ["Jump into the pond immediately to retrieve the map for him.", "Stay calm, I will ask the souvenir shop to buy a new map."]
+    'relic_sac_c1': {
+        text: 'John: "Beautiful. Oops! A powerful wind gust just blew my paper map straight into the security lotus pond! What now?"',
+        img: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800', weather: '💨 Windy',
+        options: ["Don't worry, let's step to the counter to ask for a free replacement map.", "We can use this clean, long bamboo branch nearby to carefully hook it back.", "[Wrong] You must jump directly into the deep public pond immediately to fetch it."],
+        keywords: { 'counter': { next: 'relic_sac_c2' }, 'bamboo': { next: 'relic_sac_c2' }, 'jump': { next: 'relic_sac_c2', wrong: true, set_c1_wrong: true } }
     },
-    'relic_sac_good': { text: 'John: "Thank you for handling it cleanly!"', img: 'https://images.unsplash.com/photo-1548625361-155deee2627e?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'relic_sac_bad': { text: 'John: "Oh my god, you look wet and messy now! It is embarrassing."', img: 'https://images.unsplash.com/photo-1548625361-155deee2627e?w=800', weather: '☀️ Sunny', scoreModifier: -2, vfx: 'shake', keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'relic_sac_c2': {
+        text: 'John: "Okay. Suddenly, an unregistered street vendor approaches and aggressively forces me to buy souvenirs at an insane price. I feel threatened."',
+        img: 'https://images.unsplash.com/photo-1548625361-155deee2627e?w=800', weather: '☀️ Hot', isCrisis2: true,
+        optionsEasy: ["I will step in and firmly ask the vendor to leave you alone.", "Let's walk directly into the security office for instant assistance.", "[Wrong] Start yelling out loud to create a massive public scene."],
+        keywordsEasy: { 'firmly': { next: 'relic_sac_eco' }, 'security': { next: 'relic_sac_eco' }, 'yelling': { next: 'relic_sac_eco', wrong: true } },
+        optionsHard: ["Let me guide you swiftly into the official authorized relic shop.", "[Wrong] Just hand over your wallet and pay them to secure absolute safety.", "[Wrong] Ignore my presence and negotiate with the aggressive vendor alone."],
+        keywordsHard: { 'official': { next: 'relic_sac_eco' }, 'wallet': { next: 'relic_sac_eco', wrong: true, double: true }, 'ignore': { next: 'relic_sac_eco', wrong: true, double: true } }
+    },
+    'relic_sac_eco': {
+        text: 'John: "Understood. Does this relic area strictly enforce plastic-free zones and organic trash sorting to protect its spiritual atmosphere?"',
+        img: 'https://images.unsplash.com/photo-1548625361-155deee2627e?w=800', weather: '☀️ Sunny',
+        options: ["Yes, the facility strictly enforces biodegradable sorting and uses natural lotus leaf packaging.", "[Wrong] No, the site allows visitors to burn nylon bags and dump liquid waste directly inside the tombs."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    'relic_quyt': {
-        text: 'John: "This forest bunker is amazing! How did soldiers survive here?"',
-        img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☁️ Cloudy',
-        keywords: { 'canals': 'relic_quyt_2' },
-        options: ["They utilized secret underground canals and dense mangrove coverage."]
+    // 2. XEO QUYT
+    'relic_quyt_intro': {
+        text: 'John: "This mangrove canopy is thick! Tell me about Xeo Quyt history."',
+        img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☁️ Cool',
+        options: ["It served as a revolutionary base hidden deep inside a pristine primeval forest swamp.", "Soldiers built hidden underground bunkers and secret meeting rooms beneath the bushes.", "The area is accessible via traditional rowboats cruising through scenic narrow canals.", "It showcases diverse wetland species alongside historical wartime relics.", "[Wrong] It was built by medieval kings as a massive stone castle defense network."],
+        keywords: { 'revolutionary': { next: 'relic_quyt_c1' }, 'bunkers': { next: 'relic_quyt_c1' }, 'rowboats': { next: 'relic_quyt_c1' }, 'wetland': { next: 'relic_quyt_c1' }, 'castle': { next: 'relic_quyt_c1', wrong: true } }
     },
-    'relic_quyt_2': {
-        text: 'John: "Splendid history! Look out! A wild wasp swarm is flying out from the bush near our walkway! What is the protocol?"',
-        img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☁️ Cloudy', vfx: 'shake', sfx: 'alert',
-        keywords: { 'scream': 'relic_quyt_bad', 'quietly': 'relic_quyt_good' },
-        options: ["Scream out loud and run away instantly to save yourself.", "Tell him to freeze and walk away quietly to minimize threat."]
+    'relic_quyt_c1': {
+        text: 'John: "Incredible. Watch out! A wild wasp nest fell from the branch near our narrow walkway! Swarms are buzzing around!"',
+        img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☁️ Humid', vfx: 'shake', sfx: 'alert',
+        options: ["Squat down low, cover your exposed skin, and retreat silently.", "Follow me calmly away from the nest without waving your arms blindly.", "[Wrong] Wave your hands frantically and scream loudly to scare the wasps away."],
+        keywords: { 'squat': { next: 'relic_quyt_c2' }, 'calmly': { next: 'relic_quyt_c2' }, 'frantically': { next: 'relic_quyt_c2', wrong: true, set_c1_wrong: true } }
     },
-    'relic_quyt_good': { text: 'John: "Excellently managed safety protocol."', img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'relic_quyt_bad': { text: 'John: "You abandoned me! A wasp almost stung my neck. Horrible service."', img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☀️ Sunny', scoreModifier: -3, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'relic_quyt_c2': {
+        text: 'John: "My heart is racing! Oh no, I stepped on a slippery moss patch and twisted my left ankle! I cannot walk further."',
+        img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☁️ Humid', isCrisis2: true,
+        optionsEasy: ["Sit on this bench, I will apply a cold compress from my medical pack.", "Let me support you while walking to the nearest medical station.", "[Wrong] Keep walking forcefully to build endurance and ignore the pain."],
+        keywordsEasy: { 'medical pack': { next: 'relic_quyt_eco' }, 'medical station': { next: 'relic_quyt_eco' }, 'forcefully': { next: 'relic_quyt_eco', wrong: true } },
+        optionsHard: ["I will call the station staff to bring an emergency transport stretcher.", "[Wrong] Tell me to crawl on the dirt path until we hit the exit gates.", "[Wrong] Leave me alone in the forest while you run out to get a glass of water."],
+        keywordsHard: { 'stretcher': { next: 'relic_quyt_eco' }, 'crawl': { next: 'relic_quyt_eco', wrong: true, double: true }, 'leave me': { next: 'relic_quyt_eco', wrong: true, double: true } }
+    },
+    'relic_quyt_eco': {
+        text: 'John: "Does Xeo Quyt forbid gasoline motorboats inside the historical core canals to protect water quality?"',
+        img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☁️ Cool',
+        options: ["Yes, only manual hand-rowed sampans are permitted to protect the ecosystem.", "[Wrong] No, the management allows heavy oil vessels to speed through the swamp fields."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    'eco_giong': {
-        text: 'John: "The lotus fields are breathtaking! What local delicacy can we eat here?"',
-        img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800', weather: '☀️ Sunny',
-        keywords: { 'fish': 'eco_giong_2' },
-        options: ["You must try the traditional grilled snakehead fish wrapped in lotus leaves."]
+    // 3. GAO GIONG
+    'eco_giong_intro': {
+        text: 'John: "The lotus fields here stretch forever. What makes Gao Giong unique?"',
+        img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800', weather: '☀️ Bright',
+        options: ["It is a green oasis famous for thousands of wild birds nesting in cajuput forests.", "Visitors can ascend a 15-meter observation tower to view the panoramic landscape.", "It serves iconic meals like grilled snakehead fish wrapped inside young lotus leaves.", "The area provides relaxing rustic rowboat tours across vast purple lotus fields.", "[Wrong] It is an industrial mining site that extracts valuable crude petroleum oils."],
+        keywords: { 'oasis': { next: 'eco_giong_c1' }, 'tower': { next: 'eco_giong_c1' }, 'fish': { next: 'eco_giong_c1' }, 'purple lotus': { next: 'eco_giong_c1' }, 'mining': { next: 'eco_giong_c1', wrong: true } }
     },
-    'eco_giong_2': {
-        text: 'John: "Wow! Oh! A high-speed motorboat passed by too closely and splashed water right into us! We are drenched!"',
+    'eco_giong_c1': {
+        text: 'John: "Sounds tasty. Oh! A fast motorboat zipped by and splashed a giant wave of muddy water all over my face and camera!"',
         img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny', vfx: 'splash-effect', sfx: 'splash',
-        keywords: { 'ignore': 'eco_giong_bad', 'towel': 'eco_giong_good' },
-        options: ["Ignore it and force him to sit wet in the hot sun.", "Quickly give him an emergency dry towel from your pack."]
+        options: ["Quickly pull out a dry microfiber cloth from my pack to dry your lens.", "Here is a clean cooling towel to wipe the mud off your skin.", "[Wrong] Tell me to ignore the mud and let the camera dry naturally under the harsh sun."],
+        keywords: { 'microfiber': { next: 'eco_giong_c2' }, 'towel': { next: 'eco_giong_c2' }, 'ignore': { next: 'eco_giong_c2', wrong: true, set_c1_wrong: true } }
     },
-    'eco_giong_good': { text: 'John: "The towel saved me! You are well prepared."', img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'eco_giong_bad': { text: 'John: "I feel freezing and sticky. This is extremely uncomfortable."', img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800', weather: '☀️ Sunny', scoreModifier: -3, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'eco_giong_c2': {
+        text: 'John: "My camera seems fine, but now my stomach is cramping terribly from the local iced drink we had earlier!"',
+        img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800', weather: '☀️ Sunny', isCrisis2: true,
+        optionsEasy: ["Please take this charcoal tablet from my emergency first-aid pouch.", "Let's pause our tour immediately and rest in the air-conditioned office.", "[Wrong] Drink more cold river water to flush your digestive system out."],
+        keywordsEasy: { 'charcoal': { next: 'eco_giong_eco' }, 'pause': { next: 'eco_giong_eco' }, 'flush': { next: 'eco_giong_eco', wrong: true } },
+        optionsHard: ["I will call a taxi to transport you to the local town clinic safely.", "[Wrong] Deal with it silently because we have three hours left on our schedule.", "[Wrong] Run away to buy medicine and let me sit alone in the open sun."],
+        keywordsHard: { 'clinic': { next: 'eco_giong_eco' }, 'schedule': { next: 'eco_giong_eco', wrong: true, double: true }, 'alone': { next: 'eco_giong_eco', wrong: true, double: true } }
+    },
+    'eco_giong_eco': {
+        text: 'John: "Is electrofishing and illegal netting strictly banned inside Gao Giong to preserve native fish biodiversity?"',
+        img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800', weather: '☀️ Bright',
+        options: ["Yes, the sanctuary runs regular ranger patrols and bans all destructive fishing.", "[Wrong] No, anyone can use high-voltage shock weapons to harvest wild fish freely."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    'park_chim': {
-        text: 'John: "So many rare birds here. Can we boat deep into the core zone?"',
+    // 4. TRAM CHIM
+    'park_chim_intro': {
+        text: 'John: "Wow, Tram Chim National Park! What species are protected here?"',
         img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', weather: '☀️ Sunny',
-        keywords: { 'wetland': 'park_chim_2' },
-        options: ["Yes, we will observe the protected Ramsar wetland ecosystem via solar boat."]
+        options: ["It protects the iconic Sarus Crane, one of the tallest flying birds globally.", "The park is a certified global Ramsar wetland site of massive biological worth.", "It features native vegetation like ghost rice and deep cajeput forests.", "It serves as a critical feeding ground for migratory waterfowl during flooding seasons.", "[Wrong] It isolates thousands of genetically modified alien dinosaurs for research."],
+        keywords: { 'crane': { next: 'park_chim_c1' }, 'ramsar': { next: 'park_chim_c1' }, 'ghost rice': { next: 'park_chim_c1' }, 'waterfowl': { next: 'park_chim_c1' }, 'dinosaurs': { next: 'park_chim_c1', wrong: true } }
     },
-    'park_chim_2': {
-        text: 'John: "Splendid! Oh look, a sudden heavy tropical downpour started! Lightnings are flashing!"',
-        img: 'https://images.unsplash.com/photo-1551135049-8a33b5883817?w=800', weather: '🌧️ Heavy Rain', vfx: 'shake', sfx: 'rain',
-        keywords: { 'shelter': 'park_chim_good', 'continue': 'park_chim_bad' },
-        options: ["Instruct the captain to pull into a wooden shelter immediately.", "Keep cruising forward to stay on schedule despite the lightning risk."]
+    'park_chim_c1': {
+        text: 'John: "Magnificent. Oh look, dark clouds gathered instantly! A massive tropical storm is hitting our open solar boat with thunder!"',
+        img: 'https://images.unsplash.com/photo-1551135049-8a33b5883817?w=800', weather: '🌧️ Stormy', vfx: 'shake', sfx: 'rain',
+        options: ["Instruct the boat captain to steer into the nearest covered station immediately.", "Put on these emergency heavy rain ponchos and hold onto the safety rails.", "[Wrong] Stay in the middle of the lake to record a video of the lightning strikes."],
+        keywords: { 'steer': { next: 'park_chim_c2' }, 'ponchos': { next: 'park_chim_c2' }, 'video': { next: 'park_chim_c2', wrong: true, set_c1_wrong: true } }
     },
-    'park_chim_good': { text: 'John: "Smart choice. Safety always comes first."', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'park_chim_bad': { text: 'John: "I was terrified of the lightning strikes! You risked my life."', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', weather: '☀️ Sunny', scoreModifier: -4, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'park_chim_c2': {
+        text: 'John: "The boat docked safely, but the wind just blew my expensive prescription glasses right into the tall lakeside reeds!"',
+        img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', weather: '🌧️ Heavy Rain', isCrisis2: true,
+        optionsEasy: ["I will use this safe reach pole to search and pick them up.", "Let's wait for the heavy downpour to clear so we can spot them easily.", "[Wrong] Climb over the protective swamp fence into deep water to look for them."],
+        keywordsEasy: { 'pole': { next: 'park_chim_eco' }, 'wait': { next: 'park_chim_eco' }, 'climb': { next: 'park_chim_eco', wrong: true } },
+        optionsHard: ["Let me alert the expert park rangers to retrieve them safely.", "[Wrong] Tell me to walk blind without glasses for the rest of my Asian trip.", "[Wrong] Leave the park immediately and cancel the entire travel itinerary."],
+        keywordsHard: { 'rangers': { next: 'park_chim_eco' }, 'blind': { next: 'park_chim_eco', wrong: true, double: true }, 'cancel': { next: 'park_chim_eco', wrong: true, double: true } }
+    },
+    'park_chim_eco': {
+        text: 'John: "Does Tram Chim strictly regulate tour boat speeds and visitor capacities to prevent disturbing bird nesting habitats?"',
+        img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', weather: '☀️ Sunny',
+        options: ["Yes, boats must maintain low RPM speeds and follow designated ecotourism paths.", "[Wrong] No, speedboats can race at full power with loud music during nesting months."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    'flower_sa_dec': {
-        text: 'John: "The roses and lilies don\'t grow on the ground here, they float on water scaffolding! Why?"',
-        img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Sunny',
-        keywords: { 'flooding': 'flower_sa_dec_2' },
-        options: ["Farmers plant flowers on elevated bamboo racks to escape annual river flooding."]
+    // 5. SA DEC FLOWER VILLAGE
+    'flower_sadec_intro': {
+        text: 'John: "The flower fields look incredible! Why are they sitting on elevated racks?"',
+        img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Warm',
+        options: ["Farmers position crops on bamboo scaffolding to prevent damage from seasonal floods.", "It allows growers to tend to flowers using traditional boats between rows.", "Sa Dec provides premium blooms for nationwide festive holiday markets.", "The village is historical, cultivating ornamental plants for over a century.", "[Wrong] Racks are built to shield plants from radioactive soil conditions."],
+        keywords: { 'floods': { next: 'flower_sadec_c1' }, 'boats': { next: 'flower_sadec_c1' }, 'blooms': { next: 'flower_sadec_c1' }, 'century': { next: 'flower_sadec_c1' }, 'radioactive': { next: 'flower_sadec_c1', wrong: true } }
     },
-    'flower_sa_dec_2': {
-        text: 'John: "Genius farming! Uh oh, I accidentally stepped backward and crushed an expensive orchid pot of a local farmer. He looks furious!"',
-        img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Sunny', vfx: 'flash-red',
-        keywords: { 'argue': 'flower_sa_dec_bad', 'compensate': 'flower_sa_dec_good' },
-        options: ["Argue with the farmer that there was no warning sign.", "Politely apologize and offer fair compensation for his damaged orchid."]
+    'flower_sadec_c1': {
+        text: 'John: "A clever farming method! Oh no, while taking a photo I stepped backward and crushed an expensive orchid container! The local farmer looks furious!"',
+        img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Hot', vfx: 'flash-red', sfx: 'alert',
+        options: ["I will step in, apologize politely, and offer fair monetary compensation.", "Let me calm the farmer down while we calculate the exact pot value.", "[Wrong] Start an angry argument claiming the farmer didn't place warning signs."],
+        keywords: { 'compensate': { next: 'flower_sadec_c2' }, 'calm': { next: 'flower_sadec_c2' }, 'argument': { next: 'flower_sadec_c2', wrong: true, set_c1_wrong: true } }
     },
-    'flower_sa_dec_good': { text: 'John: "You managed local relations excellently."', img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'flower_sa_dec_bad': { text: 'John: "The public shouting match was so humiliating. I felt so unsafe."', img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Sunny', scoreModifier: -2, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'flower_sadec_c2': {
+        text: 'John: "The conflict resolved, but the heat here is intense. I am feeling extremely lightheaded, dizzy, and my skin is burning!"',
+        img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Scorching', isCrisis2: true,
+        optionsEasy: ["Let's sit in this cool farm shade and drink this cold electrolyte fluid.", "Apply this soothing aloe vera cream to your sunburned face right away.", "[Wrong] Walk faster under the direct sun to complete the field path quickly."],
+        keywordsEasy: { 'shade': { next: 'flower_sadec_eco' }, 'aloe': { next: 'flower_sadec_eco' }, 'walk faster': { next: 'flower_sadec_eco', wrong: true } },
+        optionsHard: ["Let me guide you into the nearest air-conditioned tourist rest-stop.", "[Wrong] Pour this hot local tea over your head to balance body temperatures.", "[Wrong] Ignore the dizziness and continue carrying my heavy photography tripod."],
+        keywordsHard: { 'rest-stop': { next: 'flower_sadec_eco' }, 'pour': { next: 'flower_sadec_eco', wrong: true, double: true }, 'ignore': { next: 'flower_sadec_eco', wrong: true, double: true } }
+    },
+    'flower_sadec_eco': {
+        text: 'John: "Are Sa Dec horticultural cooperatives shifting toward organic bio-pesticides to shield local river channels from pollution?"',
+        img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Warm',
+        options: ["Yes, modern flower farms deploy eco-friendly pest controls to preserve river water.", "[Wrong] No, farmers dump forbidden toxic chemical waste straight into the canal stream."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    'house_huynh': {
-        text: 'John: "This ancient villa combines French exterior architecture and Chinese interior woodcarvings. What novel is set here?"',
-        img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☁️ Cloudy',
-        keywords: { 'lover': 'house_huynh_2' },
-        options: ["It is the setting for the famous romantic novel 'The Lover' by Marguerite Duras."]
+    // 6. HUYNH THUY LE ANCIENT HOUSE
+    'house_huynh_intro': {
+        text: 'John: "This architecture is a beautiful mix. What is the historical background?"',
+        img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☁️ Calm',
+        options: ["It beautifully blends French architectural exteriors with Chinese woodcarving interiors.", "It is the setting of the legendary romantic novel 'The Lover' by Marguerite Duras.", "The residence belonged to the wealthy prominent Huynh family in the late 19th century.", "It preserves original French floor tiles, historical portraits, and precious furniture.", "[Wrong] It was a high-tech radar monitoring center during the modern cold war."],
+        keywords: { 'blends': { next: 'house_huynh_c1' }, 'lover': { next: 'house_huynh_c1' }, 'wealthy': { next: 'house_huynh_c1' }, 'tiles': { next: 'house_huynh_c1' }, 'radar': { next: 'house_huynh_c1', wrong: true } }
     },
-    'house_huynh_2': {
-        text: 'John: "Beautiful romantic history. Wait, the room is packed with other tourists and someone stole my wallet out of my bag!"',
-        img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☁️ Cloudy', vfx: 'shake', sfx: 'alert',
-        keywords: { 'police': 'house_huynh_good', 'blame': 'house_huynh_bad' },
-        options: ["Contact the museum management and local police to check cameras immediately.", "Blame him for not closing his backpack properly."]
+    'house_huynh_c1': {
+        text: 'John: "Exquisite. Wait! The main hall is so packed with tourists that a pickpocket unzipped my bag and stole my wallet!"',
+        img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☁️ Humid', vfx: 'shake', sfx: 'alert',
+        options: ["I will alert management immediately to lock down exits and review camera feeds.", "Let's notify the nearest tourist police post inside the building right now.", "[Wrong] Shout loudly to accuse a random innocent bystander standing next to us."],
+        keywords: { 'management': { next: 'house_huynh_c2' }, 'police': { next: 'house_huynh_c2' }, 'accuse': { next: 'house_huynh_c2', wrong: true, set_c1_wrong: true } }
     },
-    'house_huynh_good': { text: 'John: "Your rapid response calmed my panic down."', img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'house_huynh_bad': { text: 'John: "How can you blame the victim? This is a dreadful service attitude."', img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☀️ Sunny', scoreModifier: -3, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'house_huynh_c2': {
+        text: 'John: "The police are looking into it. But now, I realize my vital physical passport was inside that stolen wallet!"',
+        img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☁️ Calm', isCrisis2: true,
+        optionsEasy: ["I will guide you to report to the embassy to secure an emergency passport.", "Let's request a certified copy of the theft report from the local precinct.", "[Wrong] Forget the passport and try to catch a domestic flight without identity papers."],
+        keywordsEasy: { 'embassy': { next: 'house_huynh_eco' }, 'precinct': { next: 'house_huynh_eco' }, 'flight': { next: 'house_huynh_eco', wrong: true } },
+        optionsHard: ["Let me contact our agency team to assist your official consular application.", "[Wrong] Wait inside the ancient house for three days hoping the thief returns it.", "[Wrong] Give up traveling entirely and check into a local hospital due to anxiety."],
+        keywordsHard: { 'consular': { next: 'house_huynh_eco' }, 'hoping': { next: 'house_huynh_eco', wrong: true, double: true }, 'hospital': { next: 'house_huynh_eco', wrong: true, double: true } }
+    },
+    'house_huynh_eco': {
+        text: 'John: "Does this heritage house limit indoor visitor capacity to protect fragile wooden structures from humidity?"',
+        img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☁️ Calm',
+        options: ["Yes, entry counts are actively strictly managed to prevent physical structural degradation.", "[Wrong] No, thousands of visitors are compressed inside while smoking cigarettes."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    'lotus_pagoda': {
-        text: 'John: "Unbelievable! Are those giant lotus leaves real? Can they actually support human weight?"',
+    // 7. PHUOC KIEN LOTUS PAGODA
+    'pagoda_lotus_intro': {
+        text: 'John: "Are these giant lotus leaves real? How can they grow so large?"',
         img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny',
-        keywords: { 'pounds': 'lotus_pagoda_2' },
-        options: ["Yes, their unique vein structure can easily hold an adult up to 150 pounds."]
+        options: ["Yes, Victoria amazonica leaves feature unique thick fibrous vein structures underneath.", "The massive leaves can safely support an adult weighing up to 140 pounds.", "The ancient pagoda pond contains mineral-rich mud that feeds the giant plants.", "Local monks protect these unique botanical wonders as sacred temple symbols.", "[Wrong] No, they are artificial plastic discs painted green to attract visitors."],
+        keywords: { 'fibrous': { next: 'pagoda_lotus_c1' }, 'support': { next: 'pagoda_lotus_c1' }, 'mud': { next: 'pagoda_lotus_c1' }, 'monks': { next: 'pagoda_lotus_c1' }, 'artificial': { next: 'pagoda_lotus_c1', wrong: true } }
     },
-    'lotus_pagoda_2': {
-        text: 'John: "Incredible botanics! I want to step on it for a photo, but I lost my balance and slipped into the muddy pond water!"',
+    'pagoda_lotus_c1': {
+        text: 'John: "Amazing biology! I stepped on the leaf platform for a photo, but lost my balance and fell into the deep muddy pond!"',
         img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny', vfx: 'splash-effect', sfx: 'splash',
-        keywords: { 'pull': 'lotus_pagoda_good', 'laugh': 'lotus_pagoda_bad' },
-        options: ["Extend your hand instantly to pull him out and call for a dry robe.", "Laugh out loud and record a video for social media first."]
+        options: ["Extend your arm immediately to pull me out and request a temple drying robe.", "Stay calm, grab this safety wooden pole so I can drag you to the solid bank.", "[Wrong] Pull out your phone and live-stream my clumsy accident for social media views."],
+        keywords: { 'robe': { next: 'pagoda_lotus_c2' }, 'pole': { next: 'pagoda_lotus_c2' }, 'live-stream': { next: 'pagoda_lotus_c2', wrong: true, set_c1_wrong: true } }
     },
-    'lotus_pagoda_good': { text: 'John: "A bit embarrassing but your help was lightning fast."', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'lotus_pagoda_bad': { text: 'John: "You mocked me during an emergency? I am going to report your company!"', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny', scoreModifier: -5, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'pagoda_lotus_c2': {
+        text: 'John: "I am safe but covered in thick black mud! My expensive smartphone is filled with dirty water and dead!"',
+        img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny', isCrisis2: true,
+        optionsEasy: ["Turn it off instantly and let's bury it in dry rice grain bags.", "We can head to a professional phone repair shop in town right now.", "[Wrong] Turn it on repeatedly and shake it violently to force water out."],
+        keywordsEasy: { 'rice': { next: 'pagoda_lotus_eco' }, 'repair': { next: 'pagoda_lotus_eco' }, 'shake': { next: 'pagoda_lotus_eco', wrong: true } },
+        optionsHard: ["Let me secure a temporary backup phone so you remain connected.", "[Wrong] Throw the device into the temple trash bin because it is useless.", "[Wrong] Dry it using a scorching flame torch from the temple altar area."],
+        keywordsHard: { 'backup': { next: 'pagoda_lotus_eco' }, 'trash bin': { next: 'pagoda_lotus_eco', wrong: true, double: true }, 'flame': { next: 'pagoda_lotus_eco', wrong: true, double: true } }
+    },
+    'pagoda_lotus_eco': {
+        text: 'John: "Does the pagoda restrict visitors from stepping on lotus leaves during periods of dangerously low water levels?"',
+        img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny',
+        options: ["Yes, leaf boarding is suspended when water levels drop to safeguard plant root systems.", "[Wrong] No, tourists can step on them anytime even if the leaves are drying and dying."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    'park_bridge': {
-        text: 'John: "The view of Cao Lãnh Bridge over the Mekong River from this park is spectacular. What does it symbolize?"',
+    // 8. CAO LANH BRIDGE PARK
+    'park_bridge_intro': {
+        text: 'John: "The view of Cao Lãnh Bridge from this riverbank park is spectacular. Tell me about it."',
         img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '💨 Windy',
-        keywords: { 'connection': 'park_bridge_2' },
-        options: ["It represents modern connection, trade growth, and infrastructure energy."]
+        options: ["It is a beautiful cable-stayed bridge stretching across the vast Tien River branch.", "It replaces traditional historic ferry networks, boosting modern economic trade.", "The park offers clean walking paths and fresh air for local residents.", "Its construction was a major joint international engineering project.", "[Wrong] The entire bridge structure was built using recycled plastic drinking straws."],
+        keywords: { 'cable-stayed': { next: 'park_bridge_c1' }, 'ferry': { next: 'park_bridge_c1' }, 'walking paths': { next: 'park_bridge_c1' }, 'engineering': { next: 'park_bridge_c1' }, 'straws': { next: 'park_bridge_c1', wrong: true } }
     },
-    'park_bridge_2': {
-        text: 'John: "Very impressive! Oh, my expensive sunglasses just fell off my face onto the high ledge! I can\'t reach it!"',
+    'park_bridge_c1': {
+        text: 'John: "Magnificent bridge. Oh no! A strong river wind blew my luxury designer sunglasses right onto the high concrete ledge over the water!"',
         img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '💨 Windy',
-        keywords: { 'tool': 'park_bridge_good', 'climb': 'park_bridge_bad' },
-        options: ["Borrow a long cleanup stick from a sanitation worker to hook it safely.", "Encourage him to climb over the safety fence to grab it himself."]
+        options: ["Let me borrow a long reach hook from a park sanitation worker to get them.", "Stay here, I will locate a long bamboo stick to safely slide them back.", "[Wrong] Climb over the safety protection barrier to grab them yourself."],
+        keywords: { 'hook': { next: 'park_bridge_c2' }, 'slide': { next: 'park_bridge_c2' }, 'climb': { next: 'park_bridge_c2', wrong: true, set_c1_wrong: true } }
     },
-    'park_bridge_good': { text: 'John: "Wow, perfect creative solution. Got them back!"', img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'park_bridge_bad': { text: 'John: "The guard yelled at me for climbing the fence! You gave dangerous advice."', img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '☀️ Sunny', scoreModifier: -3, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'park_bridge_c2': {
+        text: 'John: "We got the glasses. But look, a pack of stray dogs is gathering on our return path, barking aggressively!"',
+        img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '💨 Windy', isCrisis2: true,
+        optionsEasy: ["Walk slowly and avoid direct eye contact until we pass them.", "Let's change our route calmly and use the main lit highway walkway.", "[Wrong] Pick up heavy stones and throw them aggressively at the pack leaders."],
+        keywordsEasy: { 'avoid': { next: 'park_bridge_eco' }, 'route': { next: 'park_bridge_eco' }, 'stones': { next: 'park_bridge_eco', wrong: true } },
+        optionsHard: ["Stay behind me closely while I wave this open umbrella to keep them back.", "[Wrong] Turn around and sprint at full speed away from the dogs while screaming.", "[Wrong] Kick the dogs forcefully to assert absolute human dominance."],
+        keywordsHard: { 'umbrella': { next: 'park_bridge_eco' }, 'sprint': { next: 'park_bridge_eco', wrong: true, double: true }, 'kick': { next: 'park_bridge_eco', wrong: true, double: true } }
+    },
+    'park_bridge_eco': {
+        text: 'John: "Does the municipal park deploy automated trash boom barriers to capture river plastic along the shoreline?"',
+        img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '💨 Windy',
+        options: ["Yes, floating barriers are installed to clean plastic waste from the Mekong current.", "[Wrong] No, the park encourages citizens to throw plastic bags into the river stream."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    'relic_thap': {
-        text: 'John: "These ancient towers buried in the soil look so mysterious. Which civilization built them?"',
-        img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Sunny',
-        keywords: { 'oc_eo': 'relic_thap_2' },
-        options: ["They belong to the ancient Óc Eo culture dating back over 1500 years."]
+    // 9. GO THAP
+    'site_gothap_intro': {
+        text: 'John: "These ancient brick mounds look mysterious. What culture is buried here?"',
+        img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Scorching',
+        options: ["It is a major archaeological site belonging to the ancient Óc Eo civilization.", "The ruins date back over 1,500 years, holding sacred ancient temple bases.", "It holds architectural foundations dedicated to Hindu deities and ancient kings.", "Excavations revealed precious gold gold leaf artifacts and old stone statues.", "[Wrong] It is a replica town built as a filming set for Hollywood action movies."],
+        keywords: { 'oc eo': { next: 'site_gothap_c1' }, '1,500': { next: 'site_gothap_c1' }, 'deities': { next: 'site_gothap_c1' }, 'gold leaf': { next: 'site_gothap_c1' }, 'hollywood': { next: 'site_gothap_c1', wrong: true } }
     },
-    'relic_thap_2': {
-        text: 'John: "Incredible archeology! Oh dear, the scorching sun here is over 40°C. I am feeling extremely dizzy and dehydrated!"',
+    'site_gothap_c1': {
+        text: 'John: "Fascinating archaeology. Oh god, the direct heat here is nearly 42°C! I am feeling incredibly nauseous, dizzy, and weak!"',
         img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Extremely Hot', vfx: 'flash-red', sfx: 'alert',
-        keywords: { 'shade': 'relic_thap_good', 'force': 'relic_thap_bad' },
-        options: ["Lead him into a cool shade immediately, give him electrolyte water.", "Force him to walk faster to finish the ruins before resting."]
+        options: ["Let's seek immediate shade and drink this cold rehydration water.", "Rest right here, I will fan you and apply a cold compress to your neck.", "[Wrong] Keep running forward through the open field ruins to finish the map."],
+        keywords: { 'shade': { next: 'site_gothap_c2' }, 'fan': { next: 'site_gothap_c2' }, 'running': { next: 'site_gothap_c2', wrong: true, set_c1_wrong: true } }
     },
-    'relic_thap_good': { text: 'John: "I feel much better now. Your medical awareness is great."', img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'relic_thap_bad': { text: 'John: "I nearly fainted out there! You have zero compassion for tourists."', img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Sunny', scoreModifier: -4, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'site_gothap_c2': {
+        text: 'John: "I feel slightly stable under the shade, but look! A poisonous green viper is resting on the brick wall right next to my hand!"',
+        img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Scorching', isCrisis2: true,
+        optionsEasy: ["Freeze completely, pull your hand back slowly without sudden moves.", "Let's step backward quietly away from the wall structure together.", "[Wrong] Grab a wooden branch and strike the viper aggressively."],
+        keywordsEasy: { 'freeze': { next: 'site_gothap_eco' }, 'backward': { next: 'site_gothap_eco' }, 'strike': { next: 'site_gothap_eco', wrong: true } },
+        optionsHard: ["Stay completely still while I alert the expert sanctuary guards.", "[Wrong] Blow air directly at the snake's eyes to force it to run away.", "[Wrong] Grab the poisonous viper with your bare hands to show bravery."],
+        keywordsHard: { 'guards': { next: 'site_gothap_eco' }, 'blow air': { next: 'site_gothap_eco', wrong: true, double: true }, 'bare hands': { next: 'site_gothap_eco', wrong: true, double: true } }
+    },
+    'site_gothap_eco': {
+        text: 'John: "Does the Ministry of Culture restrict deep soil digging here to prevent breaking underground ancient water tables?"',
+        img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Scorching',
+        options: ["Yes, all excavations are tightly controlled to protect subterranean heritage layer fields.", "[Wrong] No, corporate sand mining is permitted directly next to the ancient shrines."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    'museum_dt': {
-        text: 'John: "The war artifacts and regional nature exhibits are well preserved. What is the key display here?"',
-        img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☁️ Cloudy',
-        keywords: { 'history': 'museum_dt_2' },
-        options: ["It highlights the localized history of resistance and local ancient relics."]
+    // 10. DONG THAP MUSEUM
+    'museum_dt_intro': {
+        text: 'John: "The galleries are clean. What displays are housed in this museum?"',
+        img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☁️ Cool',
+        options: ["It stores localized war resistance artifacts and revolutionary histories.", "The museum displays hundreds of original ancient Óc Eo heritage artifacts.", "It showcases cultural traditions, old tools, and folklore of Mekong citizens.", "The building exterior exhibits historical planes, tanks, and vehicles.", "[Wrong] It displays living deep-sea sharks caught inside local irrigation ditches."],
+        keywords: { 'war': { next: 'museum_dt_c1' }, 'artifacts': { next: 'museum_dt_c1' }, 'folklore': { next: 'museum_dt_c1' }, 'vehicles': { next: 'museum_dt_c1' }, 'sharks': { next: 'museum_dt_c1', wrong: true } }
     },
-    'museum_dt_2': {
-        text: 'John: "Splendid museum. Oh look, a group of local kids are running around screaming, blocking our view completely."',
-        img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☁️ Cloudy',
-        keywords: { 'politely': 'museum_dt_good', 'shout': 'museum_dt_bad' },
-        options: ["Politely ask the group leader to manage the kids so everyone can view.", "Shout angrily at the kids to get away immediately."]
+    'museum_dt_c1': {
+        text: 'John: "Very educational. Oh no! A large tour group of noisy kids ran past and knocked over a historical display barrier right in front of us!"',
+        img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☁️ Cool',
+        options: ["Let me inform the floor security guard to secure the fragile area instantly.", "I will help the museum docent reposition the physical barrier safely.", "[Wrong] Scream angrily at the children and chase them through the halls."],
+        keywords: { 'security': { next: 'museum_dt_c2' }, 'barrier': { next: 'museum_dt_c2' }, 'scream': { next: 'museum_dt_c2', wrong: true, set_c1_wrong: true } }
     },
-    'museum_dt_good': { text: 'John: "Calm and effective communication style."', img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
-    'museum_dt_bad': { text: 'John: "Your angry shouting outburst was scary and unprofessional."', img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☀️ Sunny', scoreModifier: -2, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+    'museum_dt_c2': {
+        text: 'John: "The area is clear. Wait, I accidentally leaned on a fresh paint door frame and ruined my favorite expensive shirt!"',
+        img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☁️ Cool', isCrisis2: true,
+        optionsEasy: ["Let's use this specialized wet sanitizing wipe to dissolve the oil stain.", "Don't worry, there is an official souvenir apparel shop on the first floor.", "[Wrong] Rub the wet stain aggressively with your dry palm to spread it out."],
+        keywordsEasy: { 'wipe': { next: 'museum_dt_eco' }, 'apparel': { next: 'museum_dt_eco' }, 'rub': { next: 'museum_dt_eco', wrong: true } },
+        optionsHard: ["Let me request a cleaning solvent solution from the maintenance staff.", "[Wrong] Wash the expensive silk shirt using industrial floor bleach from the bathroom.", "[Wrong] Rip the fabric off right now to transform it into a tank top style."],
+        keywordsHard: { 'solvent': { next: 'museum_dt_eco' }, 'bleach': { next: 'museum_dt_eco', wrong: true, double: true }, 'rip': { next: 'museum_dt_eco', wrong: true, double: true } }
+    },
+    'museum_dt_eco': {
+        text: 'John: "Does the museum employ low-energy UV-filtering LED light grids to shield ancient organic textile artifacts from decay?"',
+        img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☁️ Cool',
+        options: ["Yes, precision conservation lighting grids protect historical fabrics from light degradation.", "[Wrong] No, hot high-radiation halogen searchlights are focused directly on the old materials."],
+        keywords: { 'yes': { next: 'end_evaluation' }, 'no': { next: 'end_evaluation', ecoWrong: true } }
+    },
 
-    // MÀN HÌNH ĐÁNH GIÁ KẾT THÚC (CHIA 5 THANG ĐIỂM LINH HOẠT)
-    'end_evaluation': {
-        text: 'Processing customer rating data matrix...',
-        img: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800', weather: '✨ Final Evaluation',
-        keywords: {}, options: [] // Sẽ tự động kết xuất bằng hàm logic
-    }
+    'end_evaluation': { text: 'Compiling rating matrix data...', img: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800', weather: '✨ Final Audit' }
 };
 
-// Cấu hình Thang điểm 5 bậc linh hoạt
 const evaluationTiers = [
-    { min: 9, title: "🏆 Tier 5: World-Class Guide", review: "John: 'Absolutely flawless tour guide! Managed all unexpected crises safely with native-like English. Highly recommended!'", tip: "$50 Max Tip!", sfx: 'applause', color: 'flash-green' },
-    { min: 7, title: "🥇 Tier 4: Professional Guide", review: "John: 'Very good experience. Informative, spoke clearly, and handled emergencies well. Thank you!'", tip: "$30 Tip.", sfx: 'applause', color: 'flash-green' },
-    { min: 5, title: "🥈 Tier 3: Average Service", review: "John: 'The tour was okay, but some crisis management was a bit clumsy and delayed. Adequate.'", tip: "$10 Basic Tip.", sfx: 'click', color: 'flash-green' },
-    { min: 3, title: "🥉 Tier 2: Poor Performance", review: "John: 'Distracted guide. Got confused during unexpected situations and wasted time on irrelevant personal gossip.'", tip: "$2 Insulting Tip.", sfx: 'alert', color: 'flash-red' },
-    { min: 0, title: "❌ Tier 1: Terrible Service", review: "John: 'Unprofessional, left me wet or unsafe, and lacked basic courtesy. I want a full refund!'", tip: "$0 No Tip.", sfx: 'alert', color: 'shake' }
+    { min: 9, title: "🏆 Tier 5: Elite World-Class Guide", review: "John: 'Absolute masterclass guiding! Handled multi-phase emergencies seamlessly with professional English!'", tip: "$50 Maximum Bonus Tip!", sfx: 'applause', color: 'flash-green' },
+    { min: 7, title: "🥇 Tier 4: Professional Expert Guide", review: "John: 'Excellent experience. Spoke very clearly, handled unexpected problems well. Highly satisfied!'", tip: "$30 Professional Tip.", sfx: 'applause', color: 'flash-green' },
+    { min: 5, title: "🥈 Tier 3: Average Service", review: "John: 'Decent tour, but some crisis resolutions were delayed and cost us points. Needs polish.'", tip: "$10 Standard Tip.", sfx: 'click', color: 'flash-green' },
+    { min: 3, title: "🥉 Tier 2: Deficient Service", review: "John: 'Unsatisfactory. Got distracted by irrelevant topics and failed several safety responses.'", tip: "$2 Insulting Tip.", sfx: 'alert', color: 'flash-red' },
+    { min: 0, title: "❌ Tier 1: Catastrophic Guiding", review: "John: 'Terrible! Left me wet, endangered, or insulted. Disastrous safety choices. Full refund demanded!'", tip: "$0 No Tip.", sfx: 'alert', color: 'shake' }
 ];
 
-// --- QUẢN LÝ TRẠNG THÁI & LOGIC TƯƠNG TÁC ---
+// --- HỆ THỐNG QUẢN LÝ BIẾN TRẠNG THÁI ---
 let currentStage = 'start';
 let serviceScore = 10;
+let c1Wrong = false; 
 let historyStack = [];
+let showDestinations = false; 
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
@@ -609,7 +691,7 @@ if (recognition) {
 
     recognition.onstart = () => {
         statusText.className = "status-active"; statusText.innerText = "🎙️ Listening... Speak your choice phrase clearly in English.";
-        btnText.innerText = "Listening closely..."; btnIcon.innerText = "🛑"; startBtn.disabled = true;
+        btnText.innerText = "System Listening..."; btnIcon.innerText = "🛑"; startBtn.disabled = true;
     };
     recognition.onspeechend = () => {
         recognition.stop(); startBtn.disabled = false;
@@ -622,32 +704,68 @@ if (recognition) {
     };
     recognition.onerror = (e) => {
         startBtn.disabled = false; btnText.innerText = "Tap to Speak"; btnIcon.innerText = "🎙️";
-        statusText.className = "status-error"; statusText.innerText = "Microphone Error: " + e.error;
+        statusText.className = "status-error"; statusText.innerText = "Mic Connection Error: " + e.error;
     };
 }
 
 function processSpeechInput(text) {
     const stage = scriptTree[currentStage];
+    
+    // Xử lý đóng/mở menu thu gọn tại màn xuất phát
+    if (stage.isStartNode && text.includes("show")) {
+        historyStack.push({ stage: currentStage, score: serviceScore, c1Wrong: c1Wrong, showDestinations: showDestinations });
+        showDestinations = !showDestinations;
+        updateApplicationState();
+        return;
+    }
+
     let matchedKey = null;
-    for (let key in stage.keywords) {
-        if (text.includes(key)) { matchedKey = stage.keywords[key]; break; }
+    let matchedData = null;
+
+    // Rẽ nhánh kiểm tra bộ Từ khóa Động của Giai đoạn Tình huống 2
+    if (stage.isCrisis2) {
+        const activeKeywords = c1Wrong ? stage.keywordsHard : stage.keywordsEasy;
+        for (let key in activeKeywords) {
+            if (text.includes(key)) { matchedKey = activeKeywords[key].next; matchedData = activeKeywords[key]; break; }
+        }
+    } else {
+        for (let key in stage.keywords) {
+            if (text.includes(key)) { 
+                if (typeof stage.keywords[key] === 'string') {
+                    matchedKey = stage.keywords[key];
+                    matchedData = {};
+                } else {
+                    matchedKey = stage.keywords[key].next;
+                    matchedData = stage.keywords[key];
+                }
+                break; 
+            }
+        }
     }
 
     if (matchedKey) {
-        // Ghi nhận lịch sử phục vụ việc Undo
-        historyStack.push({ stage: currentStage, score: serviceScore });
-        currentStage = matchedKey;
+        // Lưu dữ liệu vào ngăn xếp lịch sử phục vụ tính năng Undo phục hồi trạng thái chuyên sâu
+        historyStack.push({ stage: currentStage, score: serviceScore, c1Wrong: c1Wrong, showDestinations: showDestinations });
         
-        // Cập nhật điểm số nếu có modifier từ cấu hình node mới
-        const nextStage = scriptTree[currentStage];
-        if (nextStage && nextStage.scoreModifier !== undefined) {
-            serviceScore = Math.max(0, Math.min(10, serviceScore + nextStage.scoreModifier));
+        // Thực thi thuật toán tính điểm chuẩn xác theo luật mới
+        if (matchedData.wrong) {
+            serviceScore = Math.max(0, serviceScore - 1.5);
+        }
+        if (matchedData.double) {
+            serviceScore = Math.max(0, serviceScore - 1.5); // Tổng phạt thành -3.0 cho lỗi kép liên tiếp
+        }
+        if (matchedData.ecoWrong) {
+            serviceScore = Math.max(0, serviceScore - 2.5); // Trừ thẳng tay 2.5 điểm môi trường
+        }
+        if (matchedData.set_c1_wrong) {
+            c1Wrong = true; // Kích hoạt Hard Mode cho tình huống tiếp theo
         }
 
+        currentStage = matchedKey;
         updateApplicationState();
-        statusText.className = "status-success"; statusText.innerText = "✅ Successfully matched voice command!";
+        statusText.className = "status-success"; statusText.innerText = "✅ Phrase matched successfully!";
     } else {
-        statusText.className = "status-error"; statusText.innerText = "❌ Phrase did not match suggestions. Please try reading again clearly!";
+        statusText.className = "status-error"; statusText.innerText = "❌ Phrase not recognized. Read suggestions precisely!";
         playSFX('alert');
     }
 }
@@ -655,80 +773,103 @@ function processSpeechInput(text) {
 function updateApplicationState() {
     const stage = scriptTree[currentStage];
     
-    // Khởi chạy hiệu ứng hình ảnh (VFX) và âm thanh đặc trưng (SFX)
-    appContainer.className = "app-container"; void appContainer.offsetWidth; // Force Reflow
+    // Kích hoạt diễn hoạt Visual (VFX) & Hiệu ứng âm thanh (SFX)
+    appContainer.className = "app-container"; void appContainer.offsetWidth; 
     if (stage.vfx) appContainer.classList.add(stage.vfx);
     if (stage.sfx) playSFX(stage.sfx); else playSFX('click');
 
-    // Đồng bộ thông số Dashboard
+    // Cập nhật thông số Monitor thời gian thực
     document.getElementById('score-val').innerText = `${serviceScore}/10`;
     document.getElementById('weather-val').innerText = stage.weather || "☀️ Sunny";
-    
     sceneryImg.src = stage.img;
     optionsList.innerHTML = '';
     document.getElementById('back-btn').disabled = (historyStack.length === 0);
 
+    // Xử lý đặc biệt khi tiến nhập màn hình Đánh giá Kết Thúc (Tính 5 thang điểm linh hoạt)
     if (currentStage === 'end_evaluation') {
-        // Kích hoạt bộ xử lý logic tính toán thang điểm 5 bậc cuối cùng
         const finalTier = evaluationTiers.find(t => serviceScore >= t.min) || evaluationTiers[evaluationTiers.length - 1];
-        
-        document.getElementById('speaker-label').innerText = "System Audit Evaluation";
-        storyText.innerHTML = `<strong style="color:var(--primary-color);">${finalTier.title}</strong><br><br>${finalTier.review}<br><br><span style="color:var(--accent-color); font-weight:bold;">💵 Tipping Reward: ${finalTier.tip}</span>`;
-        interactionBox.innerHTML = `<p style="color: var(--success-color); text-align:center; font-weight:bold; margin-bottom:0;">🎉 Congratulations! You have successfully completed the tourist guiding loop.</p>`;
+        document.getElementById('speaker-label').innerText = "SYSTEM PERFORMANCE AUDIT";
+        storyText.innerHTML = `<strong style="color:var(--primary-color); font-size:1.1rem;">${finalTier.title}</strong><br><br>${finalTier.review}<br><br><span style="color:var(--accent-color); font-weight:bold; font-size:1rem;">💵 Reward Tip: ${finalTier.tip}</span>`;
+        interactionBox.innerHTML = `<p style="color: var(--success-color); text-align:center; font-weight:bold; margin-bottom:0;">🎉 Interactive Guiding Loop Finished. Thank you!</p>`;
         startBtn.style.display = 'none';
-        
-        appContainer.className = "app-container"; void appContainer.offsetWidth;
         appContainer.classList.add(finalTier.color);
         playSFX(finalTier.sfx);
-        speak("Tour evaluation complete.", 'male');
+        speak("Tour finished evaluation compiled.", 'male');
         return;
     }
 
-    // Luồng hội thoại bình thường
-    document.getElementById('speaker-label').innerText = currentStage.includes('_bad') || currentStage.includes('_good') ? "John (Visitor)" : (stage.scoreModifier ? "System Warning" : "John (Visitor)");
+    document.getElementById('speaker-label').innerText = stage.scoreModifier ? "System System Penalty" : "Tourist (Mr. John)";
     storyText.innerText = stage.text;
     interactionBox.style.display = 'block';
     startBtn.style.display = 'inline-flex';
 
-    if (stage.options && stage.options.length > 0) {
-        stage.options.forEach(option => {
-            const div = document.createElement('div');
-            div.className = 'option-line';
-            div.innerHTML = `👉 <strong>${option}</strong>`;
-            div.onclick = () => {
-                transcriptText.innerText = `[Click Assist] "${option}"`;
-                processSpeechInput(option.toLowerCase());
-            };
+    // RÈ NGHÁNH HIỂN THỊ MENU CHO TỪNG GIAI ĐOẠN KHÁC NHAU
+    if (stage.isStartNode) {
+        document.getElementById('panel-title').innerText = "🗺️ Destination Check-list:";
+        if (!showDestinations) {
+            const div = document.createElement('div'); div.className = 'option-line';
+            div.innerHTML = `👉 <strong>Show 10 Destination Suggestions</strong> (Say 'Show')`;
+            div.onclick = () => processSpeechInput("show");
+            optionsList.appendChild(div);
+        } else {
+            const optionsArray = [
+                "We will visit Nguyen Sinh Sac Relic Area.", "Let's explore historic Xeo Quyt Relic Area.",
+                "We should go to Gao Giong Eco-tourism Area.", "How about seeing Tram Chim National Park?",
+                "Let's enjoy Sa Dec Flower Village fields.", "We can view Huynh Thuy Le Ancient House.",
+                "Let's visit Phuoc Kien Lotus Pagoda shrine.", "We will walk around Cao Lanh Bridge Park.",
+                "We should discover ancient Go Thap Archeology.", "Let's investigate historical Dong Thap Museum.",
+                "[Distraction] Talk about my Bitcoin investment profile.", "[Distraction] Complain about my Toxic Ex-girlfriend issues."
+            ];
+            optionsArray.forEach(opt => {
+                const div = document.createElement('div'); div.className = 'option-line';
+                div.innerHTML = `👉 <strong>${opt}</strong>`;
+                div.onclick = () => { transcriptText.innerText = `[Click Assist] "${opt}"`; processSpeechInput(opt.toLowerCase()); };
+                optionsList.appendChild(div);
+            });
+            const hideDiv = document.createElement('div'); hideDiv.className = 'option-line';
+            hideDiv.style.background = "#fce4d6"; hideDiv.innerHTML = `👉 <strong>Hide Suggestions List</strong> (Say 'Show')`;
+            hideDiv.onclick = () => processSpeechInput("show");
+            optionsList.appendChild(hideDiv);
+        }
+    } else if (stage.isCrisis2) {
+        document.getElementById('panel-title').innerText = `🔊 CRISIS GIAI ĐOẠN 2 (${c1Wrong ? "🔥 HARD MODE: Double Penalty" : "🍀 EASY MODE"}):`;
+        const activeOptions = c1Wrong ? stage.optionsHard : stage.optionsEasy;
+        activeOptions.forEach(opt => {
+            const div = document.createElement('div'); div.className = 'option-line';
+            div.innerHTML = `👉 <strong>${opt}</strong>`;
+            div.onclick = () => { transcriptText.innerText = `[Click Assist] "${opt}"`; processSpeechInput(opt.toLowerCase()); };
+            optionsList.appendChild(div);
+        });
+    } else if (stage.options && stage.options.length > 0) {
+        document.getElementById('panel-title').innerText = "🔊 Read Aloud Presentation Suggestion:";
+        stage.options.forEach(opt => {
+            const div = document.createElement('div'); div.className = 'option-line';
+            div.innerHTML = `👉 <strong>${opt}</strong>`;
+            div.onclick = () => { transcriptText.innerText = `[Click Assist] "${opt}"`; processSpeechInput(opt.toLowerCase()); };
             optionsList.appendChild(div);
         });
     }
 
-    // Đọc thoại AI giọng máy trầm ấm hỗ trợ nghe ngấm cốt truyện
     speak(stage.text, 'male');
 }
 
 function goBack() {
     if (historyStack.length > 0) {
-        playSFX('click');
         const prev = historyStack.pop();
-        currentStage = prev.stage;
-        serviceScore = prev.score;
-        
-        // Nếu phục hồi từ màn hình cuối, bật lại nút nói
+        currentStage = prev.stage; serviceScore = prev.score;
+        c1Wrong = prev.c1Wrong; showDestinations = prev.showDestinations;
         startBtn.style.display = 'inline-flex';
-        interactionBox.innerHTML = `<p>🔊 Read Aloud Your Tour Presentation:</p><div id="options-list"></div>`;
-        
+        document.getElementById('panel-title').innerText = "🔊 Speak Your Tour Presentation:";
         updateApplicationState();
-        statusText.className = ""; statusText.innerText = "Undo executed. State reverted.";
+        statusText.className = ""; statusText.innerText = "Undo executed. State restored.";
     }
 }
 
 function resetGame() {
-    currentStage = 'start'; serviceScore = 10; historyStack = [];
+    currentStage = 'start'; serviceScore = 10; c1Wrong = false; historyStack = []; showDestinations = false;
     transcriptText.innerText = "..."; statusText.className = "";
-    statusText.innerText = "System reset. Ready for talk loop.";
-    startBtn.style.display = 'inline-flex';
-    interactionBox.innerHTML = `<p>🔊 Read Aloud Your Tour Presentation:</p><div id="options-list"></div>`;
+    statusText.innerText = "System reset successfully."; startBtn.style.display = 'inline-flex';
+    document.getElementById('panel-title').innerText = "🔊 Speak Your Tour Presentation:";
     updateApplicationState();
 }
 
@@ -736,10 +877,7 @@ function speak(text, gender) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US'; utterance.rate = 0.92;
-        const voices = window.speechSynthesis.getVoices();
-        let voice = voices.find(v => v.name.includes('Google US English Male') || v.name.includes('David') || (v.lang.includes('en') && v.name.includes('Male')));
-        if (voice) utterance.voice = voice;
+        utterance.lang = 'en-US'; utterance.rate = 0.95;
         window.speechSynthesis.speak(utterance);
     }
 }
