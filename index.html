@@ -2,609 +2,751 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echoes of Tomorrow V3 - Cyber Apocalypse RPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đồng Tháp Tour Guide - Interactive Speaking System</title>
     <style>
         :root {
-            --bg-color: #0d0e12;
-            --panel-bg: #161920;
-            --accent-color: #ff4757;
-            --text-color: #e0e6ed;
+            --primary-color: #1b4d3e; /* Màu xanh lá sen Đồng Tháp trầm ấm */
+            --primary-hover: #113327;
+            --bg-color: #f4f7f5;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --accent-color: #e67e22;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --water-color: #2980b9;
         }
-        body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.6s ease;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 12px;
+            transition: background 0.5s ease;
         }
-        #game-container {
-            max-width: 850px;
+
+        .app-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            max-width: 520px;
             width: 100%;
-            background: var(--panel-bg);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 0 35px rgba(0,0,0,0.8);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.5s ease;
+            text-align: center;
+            border: 1px solid #e2ebf0;
+            margin-top: 10px;
             position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
         }
-        /* --- VISUAL EFFECTS (VFX) --- */
-        .shake {
-            animation: shakeAnim 0.4s ease-in-out;
-        }
+
+        /* --- VISUAL ANIMATIONS (VFX) --- */
+        .shake { animation: shakeAnim 0.4s ease-in-out; }
         @keyframes shakeAnim {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-8px); }
             40%, 80% { transform: translateX(8px); }
         }
-        .flash-red { animation: flashRedAnim 0.4s ease-out; }
-        @keyframes flashRedAnim { 0% { background: #ff4757; } 100% { background: var(--panel-bg); } }
         
-        .flash-white { animation: flashWhiteAnim 0.3s ease-out; }
-        @keyframes flashWhiteAnim { 0% { filter: brightness(3); } 100% { filter: brightness(1); } }
+        .splash-effect { animation: splashAnim 0.6s ease-out; }
+        @keyframes splashAnim {
+            0% { box-shadow: inset 0 0 0 0px var(--water-color); filter: brightness(1.5); }
+            100% { box-shadow: inset 0 0 0 100px rgba(41, 128, 185, 0); filter: brightness(1); }
+        }
 
-        .flash-green { animation: flashGreenAnim 0.5s ease-out; }
-        @keyframes flashGreenAnim { 0% { background: #2ed573; } 100% { background: var(--panel-bg); } }
+        .flash-red { animation: flashRedAnim 0.4s ease-out; }
+        @keyframes flashRedAnim { 0% { background: #fadbd8; } 100% { background: var(--card-bg); } }
 
-        /* --- UI COMPONENTS --- */
-        #status-panel {
+        .flash-green { animation: flashGreenAnim 0.4s ease-out; }
+        @keyframes flashGreenAnim { 0% { background: #d4efdf; } 100% { background: var(--card-bg); } }
+
+        header h1 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        /* --- DASHBOARD MONITOR --- */
+        .dashboard-bar {
             display: flex;
-            justify-content: space-around;
-            background: rgba(0,0,0,0.4);
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .status-bar { font-weight: bold; font-size: 0.9rem; }
-        #health-val { color: #ff4754; }
-        #sanity-val { color: #54a0ff; }
-        #supply-val { color: #ffa502; }
-
-        #story-img {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border: 2px solid var(--accent-color);
-            transition: border-color 0.5s ease;
-        }
-        #character-voice {
-            font-style: italic;
-            color: #ffa502;
-            margin-bottom: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        #situation-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        details {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 12px;
-            border-left: 4px solid var(--accent-color);
-            margin-bottom: 25px;
-            border-radius: 0 6px 6px 0;
-        }
-        summary { font-weight: bold; cursor: pointer; color: var(--accent-color); user-select: none; }
-        #hints-list { padding-left: 20px; margin-top: 10px; }
-        #hints-list li { margin-bottom: 8px; cursor: pointer; color: #7bed9f; }
-        #hints-list li:hover { text-decoration: underline; }
-
-        #controls {
-            display: flex;
-            gap: 12px;
-            align-items: center;
             justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            align-items: center;
+            background: #f0f4f1;
+            padding: 8px 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #e2ece4;
         }
-        .btn {
-            background: var(--accent-color);
+        #score-val { color: var(--accent-color); font-size: 1rem; }
+        #weather-val { color: #2980b9; }
+
+        .media-container {
+            width: 100%;
+            height: 240px;
+            background-color: #edf2f7;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            border: 2px solid #e2ece4;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .character-bubble {
+            background: #eef7f2;
+            border-left: 4px solid var(--primary-color);
+            padding: 14px;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 12px;
+        }
+
+        .character-name {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .story-text {
+            font-size: 0.95rem;
+            line-height: 1.45;
+        }
+
+        .interaction-panel {
+            background: #fffaf0;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: left;
+            margin-bottom: 16px;
+            border: 1px dashed #feebc8;
+        }
+
+        .interaction-panel p {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #dd6b20;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .option-line {
+            margin: 8px 0;
+            font-size: 0.9rem;
+            color: #34495e;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 6px;
+            border: 1px solid rgba(226, 116, 32, 0.1);
+            line-height: 1.35;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option-line:hover {
+            background: #fff;
+            border-color: var(--accent-color);
+            transform: translateX(3px);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .voice-btn {
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 20px;
-            font-size: 0.95rem;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
+            flex: 2;
+            padding: 14px;
+            font-size: 1rem;
+            border-radius: 12px;
             cursor: pointer;
-            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(27, 77, 62, 0.2);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
             transition: all 0.2s;
         }
-        .btn:disabled { background: #444 !important; cursor: not-allowed; opacity: 0.5; }
-        .btn:hover:not(:disabled) { filter: brightness(1.1); }
-        #back-btn { background: #57606f; }
-        #bgm-btn { background: #2f3542; font-size: 0.85rem; padding: 8px 14px; }
-        #status { font-weight: bold; color: #2ed573; }
-        #transcript { margin-top: 15px; font-style: italic; color: #a4b0be; text-align: center; }
+
+        .voice-btn:active {
+            background-color: var(--primary-hover);
+            transform: scale(0.98);
+        }
+
+        .voice-btn:disabled {
+            background-color: #cbd5e0;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .utility-btn {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid #dcdde1;
+            padding: 12px;
+            font-size: 0.85rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .utility-btn:hover:not(:disabled) {
+            background: #f1f2f6;
+            color: var(--text-main);
+        }
+        .utility-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .status-box {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            background: #f8f9fa;
+            width: 100%;
+            border: 1px solid #e8ecef;
+        }
+
+        .status-active { color: var(--accent-color); font-weight: 600; animation: pulse 1.5s infinite; }
+        .status-success { color: var(--success-color); font-weight: 600; }
+        .status-error { color: var(--danger-color); font-weight: 600; }
+
+        .transcript-zone { margin-top: 4px; font-size: 0.8rem; color: var(--text-muted); }
+        .transcript-text { font-weight: bold; color: var(--danger-color); }
+
+        #bgm-toggle-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.8); border: 1px solid #ccc;
+            border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer;
+        }
+
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h2 style="margin: 0; color: var(--accent-color); letter-spacing: 2px;">ECHOES OF TOMORROW (V3)</h2>
-        <button id="bgm-btn" class="btn" onclick="toggleBGM()">🎵 Start Ambient BGM</button>
-    </div>
-
-    <div id="status-panel">
-        <div class="status-bar">❤️ HP: <span id="health-val">100%</span></div>
-        <div class="status-bar">🧠 SANITY: <span id="sanity-val">100%</span></div>
-        <div class="status-bar">🎒 SUPPLIES: <span id="supply-val">100%</span></div>
-    </div>
-
-    <img id="story-img" src="" alt="Wasteland Scene">
+<div class="app-container" id="main-app">
+    <button id="bgm-toggle-btn" onclick="toggleBGM()">🎵 BGM: Off</button>
     
-    <div id="character-voice">Loading Core Engine...</div>
-    <div id="situation-text">Booting simulation protocols...</div>
+    <header>
+        <h1>🎙️ Đồng Tháp Tour Guide</h1>
+        <p>Interactive English Guiding System</p>
+    </header>
 
-    <details id="hints-details">
-        <summary id="hints-summary">💡 Show Speech Suggestions (Click to open)</summary>
-        <ul id="hints-list"></ul>
-    </details>
-
-    <div id="controls">
-        <button id="back-btn" class="btn" onclick="goBack()" disabled>⬅️ Back (Undo)</button>
-        <button id="mic-btn" class="btn" onclick="startListening()">🎤 Start Speaking</button>
-        <span id="status">Status: Standby</span>
+    <div class="dashboard-bar">
+        <div>⭐ Service Score: <span id="score-val">10/10</span></div>
+        <div>🌤️ Weather: <span id="weather-val">Loading...</span></div>
     </div>
-    <div id="transcript">You said: "..."</div>
+        
+    <div class="media-container">
+        <img id="scenery-img" src="" alt="Destination">
+    </div>
+
+    <div class="character-bubble">
+        <div class="character-name" id="speaker-label">Tourist (Mr. John)</div>
+        <div id="story" class="story-text">...</div>
+    </div>
+
+    <div class="interaction-panel" id="interaction-box">
+        <p>🔊 Read Aloud Your Tour Presentation:</p>
+        <div id="options-list"></div>
+    </div>
+
+    <div class="controls">
+        <button id="back-btn" class="utility-btn" onclick="goBack()" disabled>⬅️ Undo</button>
+        <button id="start-btn" class="voice-btn">
+            <span id="btn-icon">🎙️</span> <span id="btn-text">Tap to Speak</span>
+        </button>
+        <button class="utility-btn" onclick="resetGame()">🔄 Reset</button>
+    </div>
+        
+    <div class="status-box">
+        <div id="status-text">Ready. Please allow microphone permission when prompted.</div>
+        <div class="transcript-zone">System heard: <span id="transcript-text" class="transcript-text">...</span></div>
+    </div>
 </div>
 
 <script>
-// --- CHƯƠNG TRÌNH TỔNG HỢP SFX KỸ THUẬT SỐ (WEB AUDIO API) ---
-// Đảm bảo tiếng súng, vụ nổ phát ra to rõ 100%, không lo lỗi link chết hoặc load chậm
+// --- WEB AUDIO API SYNTHESIZER ENGINE ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playSFX(type) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
     const now = audioCtx.currentTime;
 
     if (type === 'click') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(600, now);
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-        osc.start(now); osc.stop(now + 0.1);
-    } else if (type === 'gunshot') {
-        // Tạo tiếng súng nổ đanh gọn bằng tiếng ồn trắng giả lập kỹ thuật số cường độ lớn
-        const bufferSize = audioCtx.sampleRate * 0.4;
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(500, now); gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+        osc.start(); osc.stop(now + 0.06);
+    } else if (type === 'splash') {
+        // Tạo tiếng nước văng xối xả bằng nhiễu trắng lọc băng tần
+        const bufferSize = audioCtx.sampleRate * 0.5;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-        
-        const noise = audioCtx.createBufferSource();
-        noise.buffer = buffer;
-        
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.value = 1000;
-
-        const noiseGain = audioCtx.createGain();
-        noiseGain.gain.setValueAtTime(1.5, now); // Volume súng bắn cực lớn cực rõ
-        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-
-        noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
-        noise.start(now); noise.stop(now + 0.4);
-    } else if (type === 'explosion') {
-        // Tiếng nổ trầm sâu, rung chấn
-        const bufferSize = audioCtx.sampleRate * 1.5;
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-        const noise = audioCtx.createBufferSource();
-        noise.buffer = buffer;
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass'; filter.frequency.value = 200;
-        const noiseGain = audioCtx.createGain();
-        noiseGain.gain.setValueAtTime(1.8, now);
-        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
-        noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
-        noise.start(now); noise.stop(now + 1.5);
-    } else if (type === 'alert') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.linearRampToValueAtTime(300, now + 0.3);
-        gain.gain.setValueAtTime(0.4, now);
+        const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.value = 1200;
+        const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0.6, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-        osc.start(now); osc.stop(now + 0.4);
+        noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        noise.start(); noise.stop(now + 0.5);
+    } else if (type === 'rain') {
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(90, now);
+        gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.6);
+    } else if (type === 'alert') {
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(220, now);
+        gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.3);
+    } else if (type === 'applause') {
+        // Âm thanh chúc mừng/tiền bo leng keng
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(1200, now);
+        osc.frequency.exponentialRampToValueAtTime(1800, now + 0.3);
+        gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(now + 0.4);
     }
 }
 
-// --- HỆ THỐNG TRÌNH PHÁT NHẠC NỀN DỰ PHÒNG CHỐNG LỖI TẢI TỪ MẠNG ---
-let syntheticBGMInterval = null;
-let bgmAudioNode = null;
-let isPlayingBGM = false;
-
+// Hệ thống phát BGM giả lập (Acoustic Nature Vibe) không phụ thuộc mạng
+let bgmInterval = null;
+let isBGMOn = false;
 function toggleBGM() {
-    const btn = document.getElementById('bgm-btn');
-    if (!isPlayingBGM) {
-        isPlayingBGM = true;
-        btn.innerText = "🔇 Mute BGM Music";
-        btn.style.background = "#e74c3c";
-        playCurrentStateBGM();
+    isBGMOn = !isBGMOn;
+    document.getElementById('bgm-toggle-btn').innerText = isBGMOn ? "🎵 BGM: Active" : "🎵 BGM: Off";
+    if (isBGMOn) {
+        bgmInterval = setInterval(() => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const notes = [293.66, 329.63, 392.00, 440.00]; // Hợp âm G Major tươi mát vùng sông nước
+            const note = notes[Math.floor(Math.random() * notes.length)];
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(note, now);
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.04, now + 0.2);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(now + 1.3);
+        }, 600);
     } else {
-        isPlayingBGM = false;
-        btn.innerText = "🎵 Start Ambient BGM";
-        btn.style.background = "#2f3542";
-        stopAllBGM();
+        clearInterval(bgmInterval);
     }
 }
 
-function stopAllBGM() {
-    if (syntheticBGMInterval) { clearInterval(syntheticBGMInterval); syntheticBGMInterval = null; }
-    if (bgmAudioNode) { try { bgmAudioNode.pause(); } catch(e){} }
-}
-
-function playCurrentStateBGM() {
-    if (!isPlayingBGM) return;
-    stopAllBGM();
-
-    const node = storyData[currentState];
-    // Xác định kiểu nhạc cần phát dựa trên tính chất node
-    if (currentState.includes('_win')) {
-        // Nhạc hi vọng, tươi sáng (Hợp âm rải Sine ấm áp)
-        playSyntheticDrone([261.63, 329.63, 392.00, 523.25], 'sine', 0.15, 1200);
-    } else if (currentState.includes('_dead') || currentState.includes('_lose')) {
-        // Nhạc rợn tóc gáy, creepypasta âm u độc hại
-        playSyntheticDrone([65.41, 73.42, 55.00], 'sawtooth', 0.12, 2500);
-    } else {
-        // Nhạc nền sinh tồn thông thường âm hưởng trống trải bụi bặm
-        playSyntheticDrone([110.00, 130.81, 146.83], 'triangle', 0.2, 2000);
-    }
-}
-
-function playSyntheticDrone(freqs, type, volume, intervalTime) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    
-    function triggerChord() {
-        freqs.forEach(f => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(f + (Math.random() * 2 - 1), audioCtx.currentTime);
-            
-            // Bộ lọc thông thấp tạo hiệu ứng ma mị mờ ảo bóp nghẹt âm thanh
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.value = (type === 'sawtooth') ? 180 : 400;
-
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(volume / freqs.length, audioCtx.currentTime + 1.0);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (intervalTime/1000) * 1.8);
-
-            osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + (intervalTime/1000) * 1.9);
-        });
-    }
-    triggerChord();
-    syntheticBGMInterval = setInterval(triggerChord, intervalTime);
-}
-
-// --- CẤU TRÚC KỊCH BẢN CHUẨN ĐÚNG TOÁN HỌC: 10 NHÁNH, MỖI NHÁNH 5 OPT, MỖI 5 RẼ 3 (2 YES/NO, 1 FAST END) ---
-const storyData = {
-    main: {
-        speaker: "Jax",
-        text: "The surface air is pure static, and the bunker is dead. We must choose our sector now! Do we go to the Forest, City, Metro, Highway, River, Hospital, Laboratory, Military Base, Swamp, or Cathedral?",
-        img: "https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800",
-        voiceType: 'male',
-        theme: { bg: "#0d0e12", panel: "#161920", accent: "#ff4757" },
-        status: { health: 100, sanity: 100, supplies: 100 },
-        branches: {
-            "forest": "b_forest", "city": "b_city", "metro": "b_metro", "highway": "b_highway", "river": "b_river",
-            "hospital": "b_hospital", "lab": "b_lab", "base": "b_base", "swamp": "b_swamp", "cathedral": "b_cathedral"
+// --- DỮ LIỆU KỊCH BẢN ĐA NHÁNH (10 ĐIỂM THAM QUAN + 2 ĐIỂM LAN MAN + SỰ CỐ) ---
+const scriptTree = {
+    'start': {
+        text: 'John: "Hello tour guide! I am so excited to explore Cao Lãnh, Đồng Tháp today. Where are we going first? Please give me an inspiring choice!"',
+        img: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800',
+        weather: '☀️ Sunny',
+        keywords: {
+            'sac': 'relic_sac', 'quyt': 'relic_quyt', 'giong': 'eco_giong', 'chim': 'park_chim', 'dec': 'flower_sa_dec',
+            'le': 'house_huynh', 'pagoda': 'lotus_pagoda', 'bridge': 'park_bridge', 'thap': 'relic_thap', 'museum': 'museum_dt',
+            'crypto': 'gossip_crypto', 'girlfriend': 'gossip_personal'
         },
-        hints: ["Go to the forest", "Explore the city", "Enter the metro", "Take the highway", "Follow the river", "Search the hospital", "Investigate the lab", "Infiltrate the base", "Cross the swamp", "Check the cathedral"]
+        options: [
+            "We will visit Nguyen Sinh Sac Relic Area.",
+            "Let's explore the historic Xeo Quyt Relic Area.",
+            "We should go to Gao Giong Eco-tourism Area.",
+            "How about seeing Tram Chim National Park?",
+            "Let's enjoy Sa Dec Flower Village fields.",
+            "We can view Huynh Thuy Le Ancient House.",
+            "Let's visit Phuoc Kien Lotus Pagoda shrine.",
+            "We will visit Cao Lanh Bridge Park walkway.",
+            "We should discover ancient Go Thap Relic.",
+            "Let's investigate the historical Dong Thap Museum.",
+            "[Distraction] Let's talk about my cryptocurrency investments.",
+            "[Distraction] Can I tell you about my toxic ex-girlfriend?"
+        ]
+    },
+    // 2 Nhánh giới thiệu lan man (Trừ điểm phục vụ ngay)
+    'gossip_crypto': {
+        text: 'John: "Wait, I paid for a historical tour, not financial advice! Why are you wasting time talking about Bitcoin? This is highly unprofessional..."',
+        img: 'https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=800',
+        weather: '☁️ Cloudy', scoreModifier: -3, vfx: 'shake', sfx: 'alert',
+        keywords: { 'sorry': 'start' },
+        options: ["I am deeply sorry, let's select a proper location now."]
+    },
+    'gossip_personal': {
+        text: 'John: "Uh... it is extremely awkward to hear about your relationship problems right now. Please focus on the tour or I will lower your rating."',
+        img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800',
+        weather: '☁️ Cloudy', scoreModifier: -3, vfx: 'shake', sfx: 'alert',
+        keywords: { 'apologize': 'start' },
+        options: ["I apologize for being unprofessional, let's pick a site."]
+    },
+
+    // 10 ĐIỂM THAM QUAN CHÍNH (Mỗi điểm rẽ nhánh gồm 2 lượt thoại + 1 tình huống phát sinh)
+    'relic_sac': {
+        text: 'John: "Wow, this sanctuary looks so peaceful. Who is honored here?"',
+        img: 'https://images.unsplash.com/photo-1548625361-155deee2627e?w=800', weather: '☀️ Sunny',
+        keywords: { 'father': 'relic_sac_2' },
+        options: ["This pays tribute to Uncle Ho's father, Deputy Doctor Nguyen Sinh Sac."]
+    },
+    'relic_sac_2': {
+        text: 'John: "Marvelous architecture. Oh no, a heavy wind blew my tourist map directly into the security pond! What should we do?"',
+        img: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800', weather: '💨 Windy', sfx: 'rain',
+        keywords: { 'jump': 'relic_sac_bad', 'buy': 'relic_sac_good' },
+        options: ["Jump into the pond immediately to retrieve the map for him.", "Stay calm, I will ask the souvenir shop to buy a new map."]
+    },
+    'relic_sac_good': { text: 'John: "Thank you for handling it cleanly!"', img: 'https://images.unsplash.com/photo-1548625361-155deee2627e?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'relic_sac_bad': { text: 'John: "Oh my god, you look wet and messy now! It is embarrassing."', img: 'https://images.unsplash.com/photo-1548625361-155deee2627e?w=800', weather: '☀️ Sunny', scoreModifier: -2, vfx: 'shake', keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    'relic_quyt': {
+        text: 'John: "This forest bunker is amazing! How did soldiers survive here?"',
+        img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☁️ Cloudy',
+        keywords: { 'canals': 'relic_quyt_2' },
+        options: ["They utilized secret underground canals and dense mangrove coverage."]
+    },
+    'relic_quyt_2': {
+        text: 'John: "Splendid history! Look out! A wild wasp swarm is flying out from the bush near our walkway! What is the protocol?"',
+        img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☁️ Cloudy', vfx: 'shake', sfx: 'alert',
+        keywords: { 'scream': 'relic_quyt_bad', 'quietly': 'relic_quyt_good' },
+        options: ["Scream out loud and run away instantly to save yourself.", "Tell him to freeze and walk away quietly to minimize threat."]
+    },
+    'relic_quyt_good': { text: 'John: "Excellently managed safety protocol."', img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'relic_quyt_bad': { text: 'John: "You abandoned me! A wasp almost stung my neck. Horrible service."', img: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800', weather: '☀️ Sunny', scoreModifier: -3, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    'eco_giong': {
+        text: 'John: "The lotus fields are breathtaking! What local delicacy can we eat here?"',
+        img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800', weather: '☀️ Sunny',
+        keywords: { 'fish': 'eco_giong_2' },
+        options: ["You must try the traditional grilled snakehead fish wrapped in lotus leaves."]
+    },
+    'eco_giong_2': {
+        text: 'John: "Wow! Oh! A high-speed motorboat passed by too closely and splashed water right into us! We are drenched!"',
+        img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny', vfx: 'splash-effect', sfx: 'splash',
+        keywords: { 'ignore': 'eco_giong_bad', 'towel': 'eco_giong_good' },
+        options: ["Ignore it and force him to sit wet in the hot sun.", "Quickly give him an emergency dry towel from your pack."]
+    },
+    'eco_giong_good': { text: 'John: "The towel saved me! You are well prepared."', img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'eco_giong_bad': { text: 'John: "I feel freezing and sticky. This is extremely uncomfortable."', img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800', weather: '☀️ Sunny', scoreModifier: -3, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    'park_chim': {
+        text: 'John: "So many rare birds here. Can we boat deep into the core zone?"',
+        img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', weather: '☀️ Sunny',
+        keywords: { 'wetland': 'park_chim_2' },
+        options: ["Yes, we will observe the protected Ramsar wetland ecosystem via solar boat."]
+    },
+    'park_chim_2': {
+        text: 'John: "Splendid! Oh look, a sudden heavy tropical downpour started! Lightnings are flashing!"',
+        img: 'https://images.unsplash.com/photo-1551135049-8a33b5883817?w=800', weather: '🌧️ Heavy Rain', vfx: 'shake', sfx: 'rain',
+        keywords: { 'shelter': 'park_chim_good', 'continue': 'park_chim_bad' },
+        options: ["Instruct the captain to pull into a wooden shelter immediately.", "Keep cruising forward to stay on schedule despite the lightning risk."]
+    },
+    'park_chim_good': { text: 'John: "Smart choice. Safety always comes first."', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'park_chim_bad': { text: 'John: "I was terrified of the lightning strikes! You risked my life."', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', weather: '☀️ Sunny', scoreModifier: -4, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    'flower_sa_dec': {
+        text: 'John: "The roses and lilies don\'t grow on the ground here, they float on water scaffolding! Why?"',
+        img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Sunny',
+        keywords: { 'flooding': 'flower_sa_dec_2' },
+        options: ["Farmers plant flowers on elevated bamboo racks to escape annual river flooding."]
+    },
+    'flower_sa_dec_2': {
+        text: 'John: "Genius farming! Uh oh, I accidentally stepped backward and crushed an expensive orchid pot of a local farmer. He looks furious!"',
+        img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Sunny', vfx: 'flash-red',
+        keywords: { 'argue': 'flower_sa_dec_bad', 'compensate': 'flower_sa_dec_good' },
+        options: ["Argue with the farmer that there was no warning sign.", "Politely apologize and offer fair compensation for his damaged orchid."]
+    },
+    'flower_sa_dec_good': { text: 'John: "You managed local relations excellently."', img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'flower_sa_dec_bad': { text: 'John: "The public shouting match was so humiliating. I felt so unsafe."', img: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=800', weather: '☀️ Sunny', scoreModifier: -2, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    'house_huynh': {
+        text: 'John: "This ancient villa combines French exterior architecture and Chinese interior woodcarvings. What novel is set here?"',
+        img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☁️ Cloudy',
+        keywords: { 'lover': 'house_huynh_2' },
+        options: ["It is the setting for the famous romantic novel 'The Lover' by Marguerite Duras."]
+    },
+    'house_huynh_2': {
+        text: 'John: "Beautiful romantic history. Wait, the room is packed with other tourists and someone stole my wallet out of my bag!"',
+        img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☁️ Cloudy', vfx: 'shake', sfx: 'alert',
+        keywords: { 'police': 'house_huynh_good', 'blame': 'house_huynh_bad' },
+        options: ["Contact the museum management and local police to check cameras immediately.", "Blame him for not closing his backpack properly."]
+    },
+    'house_huynh_good': { text: 'John: "Your rapid response calmed my panic down."', img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'house_huynh_bad': { text: 'John: "How can you blame the victim? This is a dreadful service attitude."', img: 'https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800', weather: '☀️ Sunny', scoreModifier: -3, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    'lotus_pagoda': {
+        text: 'John: "Unbelievable! Are those giant lotus leaves real? Can they actually support human weight?"',
+        img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny',
+        keywords: { 'pounds': 'lotus_pagoda_2' },
+        options: ["Yes, their unique vein structure can easily hold an adult up to 150 pounds."]
+    },
+    'lotus_pagoda_2': {
+        text: 'John: "Incredible botanics! I want to step on it for a photo, but I lost my balance and slipped into the muddy pond water!"',
+        img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny', vfx: 'splash-effect', sfx: 'splash',
+        keywords: { 'pull': 'lotus_pagoda_good', 'laugh': 'lotus_pagoda_bad' },
+        options: ["Extend your hand instantly to pull him out and call for a dry robe.", "Laugh out loud and record a video for social media first."]
+    },
+    'lotus_pagoda_good': { text: 'John: "A bit embarrassing but your help was lightning fast."', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'lotus_pagoda_bad': { text: 'John: "You mocked me during an emergency? I am going to report your company!"', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', weather: '☀️ Sunny', scoreModifier: -5, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    'park_bridge': {
+        text: 'John: "The view of Cao Lãnh Bridge over the Mekong River from this park is spectacular. What does it symbolize?"',
+        img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '💨 Windy',
+        keywords: { 'connection': 'park_bridge_2' },
+        options: ["It represents modern connection, trade growth, and infrastructure energy."]
+    },
+    'park_bridge_2': {
+        text: 'John: "Very impressive! Oh, my expensive sunglasses just fell off my face onto the high ledge! I can\'t reach it!"',
+        img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '💨 Windy',
+        keywords: { 'tool': 'park_bridge_good', 'climb': 'park_bridge_bad' },
+        options: ["Borrow a long cleanup stick from a sanitation worker to hook it safely.", "Encourage him to climb over the safety fence to grab it himself."]
+    },
+    'park_bridge_good': { text: 'John: "Wow, perfect creative solution. Got them back!"', img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'park_bridge_bad': { text: 'John: "The guard yelled at me for climbing the fence! You gave dangerous advice."', img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800', weather: '☀️ Sunny', scoreModifier: -3, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    'relic_thap': {
+        text: 'John: "These ancient towers buried in the soil look so mysterious. Which civilization built them?"',
+        img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Sunny',
+        keywords: { 'oc_eo': 'relic_thap_2' },
+        options: ["They belong to the ancient Óc Eo culture dating back over 1500 years."]
+    },
+    'relic_thap_2': {
+        text: 'John: "Incredible archeology! Oh dear, the scorching sun here is over 40°C. I am feeling extremely dizzy and dehydrated!"',
+        img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Extremely Hot', vfx: 'flash-red', sfx: 'alert',
+        keywords: { 'shade': 'relic_thap_good', 'force': 'relic_thap_bad' },
+        options: ["Lead him into a cool shade immediately, give him electrolyte water.", "Force him to walk faster to finish the ruins before resting."]
+    },
+    'relic_thap_good': { text: 'John: "I feel much better now. Your medical awareness is great."', img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'relic_thap_bad': { text: 'John: "I nearly fainted out there! You have zero compassion for tourists."', img: 'https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800', weather: '☀️ Sunny', scoreModifier: -4, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    'museum_dt': {
+        text: 'John: "The war artifacts and regional nature exhibits are well preserved. What is the key display here?"',
+        img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☁️ Cloudy',
+        keywords: { 'history': 'museum_dt_2' },
+        options: ["It highlights the localized history of resistance and local ancient relics."]
+    },
+    'museum_dt_2': {
+        text: 'John: "Splendid museum. Oh look, a group of local kids are running around screaming, blocking our view completely."',
+        img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☁️ Cloudy',
+        keywords: { 'politely': 'museum_dt_good', 'shout': 'museum_dt_bad' },
+        options: ["Politely ask the group leader to manage the kids so everyone can view.", "Shout angrily at the kids to get away immediately."]
+    },
+    'museum_dt_good': { text: 'John: "Calm and effective communication style."', img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☀️ Sunny', scoreModifier: 0, keywords: { 'finish': 'end_evaluation' }, options: ["Let's complete our tour here and see the final feedback."] },
+    'museum_dt_bad': { text: 'John: "Your angry shouting outburst was scary and unprofessional."', img: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800', weather: '☀️ Sunny', scoreModifier: -2, keywords: { 'finish': 'end_evaluation' }, options: ["Let's finish the tour and see the final feedback."] },
+
+    // MÀN HÌNH ĐÁNH GIÁ KẾT THÚC (CHIA 5 THANG ĐIỂM LINH HOẠT)
+    'end_evaluation': {
+        text: 'Processing customer rating data matrix...',
+        img: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800', weather: '✨ Final Evaluation',
+        keywords: {}, options: [] // Sẽ tự động kết xuất bằng hàm logic
     }
 };
 
-// Hàm tiện ích tạo dữ liệu tự động cho 10 nhánh chuẩn cấu trúc phân lớp không trùng lặp
-const sectorsConfig = [
-    { id: "forest", name: "Dark Forest", img: "https://images.unsplash.com/photo-1511497584788-876760111969?w=800", bg: "#09140e", p: "#12241a", a: "#2ecc71", words: ["climb", "hide", "run", "scout", "burn"], sfx: ['click','click','click','alert','gunshot'] },
-    { id: "city", name: "Ruined City", img: "https://images.unsplash.com/photo-1518364538800-6bcb3f41df49?w=800", bg: "#1a1b1e", p: "#25272c", a: "#f1c40f", words: ["store", "alley", "roof", "snipe", "scream"], sfx: ['click','click','click','alert','gunshot'] },
-    { id: "metro", name: "Subway Metro", img: "https://images.unsplash.com/photo-1551135049-8a33b5883817?w=800", bg: "#08080a", p: "#121317", a: "#95a5a6", words: ["track", "room", "tunnel", "vent", "blast"], sfx: ['click','click','click','alert','explosion'] },
-    { id: "highway", name: "Desert Highway", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", bg: "#231810", p: "#332318", a: "#e67e22", words: ["truck", "diner", "bridge", "drive", "dig"], sfx: ['click','click','click','alert','explosion'] },
-    { id: "river", name: "Toxic River", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800", bg: "#07170f", p: "#11261a", a: "#00ff66", words: ["boat", "swim", "raft", "bridge", "drink"], sfx: ['click','click','click','alert','alert'] },
-    { id: "hospital", name: "Abandoned Hospital", img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800", bg: "#14191c", p: "#1f272b", a: "#9b59b6", words: ["ward", "pharmacy", "clinic", "icu", "sabotage"], sfx: ['click','click','click','alert','gunshot'] },
-    { id: "lab", name: "Secret Laboratory", img: "https://images.unsplash.com/photo-1532187863486-abf9d39d6618?w=800", bg: "#0a131a", p: "#12202b", a: "#3498db", words: ["serum", "vault", "terminal", "pod", "smash"], sfx: ['click','click','click','alert','explosion'] },
-    { id: "base", name: "Military Base", img: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800", bg: "#191a16", p: "#282a22", a: "#78e08f", words: ["armory", "hangar", "bunker", "tower", "breach"], sfx: ['click','click','click','alert','gunshot'] },
-    { id: "swamp", name: "Overgrown Swamp", img: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800", bg: "#0b120c", p: "#142116", a: "#10ac84", words: ["mud", "shack", "mangrove", "wade", "poison"], sfx: ['click','click','click','alert','alert'] },
-    { id: "cathedral", name: "Crumbling Cathedral", img: "https://images.unsplash.com/photo-1548625361-155deee2627e?w=800", bg: "#1c141a", p: "#2d2029", a: "#e84118", words: ["altar", "crypt", "tower", "relic", "desecrate"], sfx: ['click','click','click','alert','gunshot'] }
+// Cấu hình Thang điểm 5 bậc linh hoạt
+const evaluationTiers = [
+    { min: 9, title: "🏆 Tier 5: World-Class Guide", review: "John: 'Absolutely flawless tour guide! Managed all unexpected crises safely with native-like English. Highly recommended!'", tip: "$50 Max Tip!", sfx: 'applause', color: 'flash-green' },
+    { min: 7, title: "🥇 Tier 4: Professional Guide", review: "John: 'Very good experience. Informative, spoke clearly, and handled emergencies well. Thank you!'", tip: "$30 Tip.", sfx: 'applause', color: 'flash-green' },
+    { min: 5, title: "🥈 Tier 3: Average Service", review: "John: 'The tour was okay, but some crisis management was a bit clumsy and delayed. Adequate.'", tip: "$10 Basic Tip.", sfx: 'click', color: 'flash-green' },
+    { min: 3, title: "🥉 Tier 2: Poor Performance", review: "John: 'Distracted guide. Got confused during unexpected situations and wasted time on irrelevant personal gossip.'", tip: "$2 Insulting Tip.", sfx: 'alert', color: 'flash-red' },
+    { min: 0, title: "❌ Tier 1: Terrible Service", review: "John: 'Unprofessional, left me wet or unsafe, and lacked basic courtesy. I want a full refund!'", tip: "$0 No Tip.", sfx: 'alert', color: 'shake' }
 ];
 
-sectorsConfig.forEach(s => {
-    // 1. Tạo node nhánh chính (Mức 1)
-    storyData[`b_${s.id}`] = {
-        speaker: s.id === "hospital" ? "Elena" : (s.id === "lab" ? "Dr. Vance" : "Jax"),
-        text: `We entered the ${s.name}. The atmosphere is heavy. We have 5 tactical choices here. Look at the data grid. What is our play?`,
-        img: s.img,
-        voiceType: (s.id === "hospital" || s.id === "lab") ? 'female' : 'male',
-        theme: { bg: s.bg, panel: s.p, accent: s.a },
-        status: { health: -10, sanity: -5, supplies: -10 },
-        hints: [`Use ${s.words[0]} approach`, `Try ${s.words[1]} route`, `Execute ${s.words[2]} tactic`, `Initiate ${s.words[3]} scanning`, `Risk ${s.words[4]} override`],
-        branches: {},
-        sfxTrigger: 'click'
-    };
-    
-    // Gán 5 nhánh phản hồi theo cấu trúc chuẩn bài toán yêu cầu:
-    // Thỏa mãn: Trong 5 nhánh -> 3 nhánh được chọn đi tiếp (2 đi tới node Yes/No, 1 đi tới Fast Ending cốt truyện). 2 nhánh còn lại là Fast Death tức thì.
-    s.words.forEach((w, idx) => {
-        const key = w.toLowerCase();
-        if (idx === 0 || idx === 1) {
-            // 2 nhánh dẫn tới tổ hợp Yes/No quyết định (Level 2)
-            storyData[`b_${s.id}`].branches[key] = `node_${s.id}_yn_${idx}`;
-            
-            storyData[`node_${s.id}_yn_${idx}`] = {
-                speaker: "System Display",
-                text: `Tactical option [${w.toUpperCase()}] succeeded! Scanning localized core... A critical anomaly detected. Do you authorize final containment sequence? Say YES or NO!`,
-                img: s.img,
-                voiceType: 'male',
-                theme: { bg: s.bg, panel: s.p, accent: s.a },
-                status: { health: 10, sanity: 20, supplies: 0 },
-                hints: ["Say YES", "Say NO"],
-                branches: { "yes": `end_${s.id}_win`, "no": `end_${s.id}_lose` },
-                sfxTrigger: s.sfx[idx]
-            };
-        } else if (idx === 2) {
-            // 1 nhánh dẫn thẳng đến kết cục nhanh (Fast Ending cốt truyện)
-            storyData[`b_${s.id}`].branches[key] = `end_${s.id}_fast`;
-            
-            storyData[`end_${s.id}_fast`] = {
-                speaker: "Narrator",
-                text: `The choice to [${w.toUpperCase()}] immediately bypassed the sector's power matrix! You managed an automated swift extraction back to safety. FAST ENDING SECURED.`,
-                img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800",
-                voiceType: 'male',
-                theme: { bg: "#051c0e", panel: "#0d381e", accent: "#2ecc71" },
-                status: { health: 0, sanity: 50, supplies: 20 },
-                hints: ["Simulate Again"],
-                branches: { "simulate": "main" },
-                sfxTrigger: s.sfx[idx]
-            };
-        } else {
-            // 2 nhánh còn lại dẫn đến Cái chết lập tức (Insta-Death/Fast Dead Ending)
-            storyData[`b_${s.id}`].branches[key] = `end_${s.id}_dead_${idx}`;
-            
-            storyData[`end_${s.id}_dead_${idx}`] = {
-                speaker: "Terminal Alert",
-                text: `FATAL ERROR: The choice [${w.toUpperCase()}] triggered an instantaneous kinetic strike or defense grid overload. Your neural signatures ceased. CRITICAL FAILURE / DEAD END.`,
-                img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
-                voiceType: 'male',
-                theme: { bg: "#2d0000", panel: "#1a0000", accent: "#ff0000" },
-                status: { health: -100, sanity: -100, supplies: -100 },
-                hints: ["Reboot System"],
-                branches: { "reboot": "main" },
-                sfxTrigger: s.sfx[idx] // Kích hoạt tiếng súng nổ/vụ nổ cực mạnh đã cấu hình
-            };
-        }
-    });
+// --- QUẢN LÝ TRẠNG THÁI & LOGIC TƯƠNG TÁC ---
+let currentStage = 'start';
+let serviceScore = 10;
+let historyStack = [];
 
-    // 2. Tạo kết quả tổ hợp Độc nhất cho các đầu cuối Win/Lose (Unique Endings)
-    storyData[`end_${s.id}_win`] = {
-        speaker: "Narrator",
-        text: `EPILOGUE - SUCCESS IN ${s.name.toUpperCase()}: Your definitive YES decision clean-purged the regional bio-threat. Fresh oxygen cascades through the sector. YOU WIN!`,
-        img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800", voiceType: 'male',
-        theme: { bg: "#051c0e", panel: "#0d381e", accent: "#2ecc71" },
-        status: { health: 100, sanity: 100, supplies: 100 },
-        hints: ["Restart Simulation"], branches: { "restart": "main" }, sfxTrigger: 'click'
-    };
-    storyData[`end_${s.id}_lose`] = {
-        speaker: "Narrator",
-        text: `EPILOGUE - ABANDONED IN ${s.name.toUpperCase()}: You played it safe with a NO. The darkness permanently consumed the infrastructure, forcing you into exile. GAME OVER.`,
-        img: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=800", voiceType: 'male',
-        theme: { bg: "#1a1a1a", panel: "#2b2b2b", accent: "#7f8c8d" },
-        status: { health: 10, sanity: 0, supplies: 5 },
-        hints: ["Restart Simulation"], branches: { "restart": "main" }, sfxTrigger: 'alert'
-    };
-});
-
-// --- STATE MANAGEMENT & LOGIC GAME ---
-let currentState = "main";
-let historyStack = []; // Lưu trữ lịch sử lựa chọn để hỗ trợ tính năng Back (Undo) lập tức
-let currentStatus = { health: 100, sanity: 100, supplies: 100 };
-
-function updateUI(isUndo = false) {
-    const node = storyData[currentState];
-    const container = document.getElementById('game-container');
-
-    // 1. Áp dụng hiệu ứng Visual (VFX) dựa trên tính chất hành động
-    container.className = ""; // Reset class cũ
-    void container.offsetWidth; // Trigger reflow ép cập nhật CSS animation
-    
-    if (currentState.includes('_dead')) {
-        container.classList.add('shake', 'flash-red');
-    } else if (currentState.includes('_win') || currentState.includes('_fast')) {
-        container.classList.add('flash-green');
-    } else if (currentState !== 'main' && !isUndo) {
-        container.classList.add('flash-white');
-    }
-
-    // 2. Kích hoạt hiệu ứng âm thanh (SFX) tương ứng nếu có cấu hình
-    if (!isUndo && node.sfxTrigger) {
-        playSFX(node.sfxTrigger);
-    }
-
-    // 3. Cập nhật và tích lũy trạng thái Status của bản thân người dùng
-    if (!isUndo && node.status) {
-        currentStatus.health = Math.max(0, Math.min(100, currentStatus.health + node.status.health));
-        currentStatus.sanity = Math.max(0, Math.min(100, currentStatus.sanity + node.status.sanity));
-        currentStatus.supplies = Math.max(0, Math.min(100, currentStatus.supplies + node.status.supplies));
-    }
-    
-    // Hiển thị Status lên bảng điều khiển
-    document.getElementById('health-val').innerText = currentStatus.health + "%";
-    document.getElementById('sanity-val').innerText = currentStatus.sanity + "%";
-    document.getElementById('supply-val').innerText = currentStatus.supplies + "%";
-
-    // 4. Đồng bộ màu nền CSS biến đổi theo mảng vùng đất đang đứng
-    document.documentElement.style.setProperty('--bg-color', node.theme.bg);
-    document.documentElement.style.setProperty('--panel-bg', node.theme.panel);
-    document.documentElement.style.setProperty('--accent-color', node.theme.accent);
-
-    // 5. Cập nhật text nội dung kịch bản
-    document.getElementById('character-voice').innerText = node.speaker + ":";
-    document.getElementById('situation-text').innerText = node.text;
-    document.getElementById('story-img').src = node.img;
-    
-    // Quản lý trạng thái đóng/mở của thanh gợi ý hội thoại (Mặc định đóng, tự mở khi gặp Yes/No)
-    const detailsEl = document.getElementById('hints-details');
-    if (currentState.includes('_yn_')) {
-        detailsEl.open = true;
-        document.getElementById('hints-summary').innerText = "⚠️ SYSTEM COMMAND REQUIRED! Speak clearly:";
-    } else {
-        detailsEl.open = false;
-        document.getElementById('hints-summary').innerText = "💡 Show Speech Suggestions (Click to open)";
-    }
-
-    const hintsList = document.getElementById('hints-list');
-    hintsList.innerHTML = "";
-    node.hints.forEach(hint => {
-        let li = document.createElement('li');
-        li.innerText = hint;
-        li.onclick = () => {
-            document.getElementById('transcript').innerText = `[Click Input] "${hint}"`;
-            processInput(hint.toLowerCase());
-        };
-        hintsList.appendChild(li);
-    });
-
-    // 6. Cập nhật trạng thái nút Back (Undo)
-    document.getElementById('back-btn').disabled = (historyStack.length === 0);
-
-    // 7. Đồng bộ hệ thống nhạc nền ma mị thay đổi trạng thái theo cốt truyện
-    playCurrentStateBGM();
-
-    // 8. Đọc thoại AI
-    speak(node.text, node.voiceType);
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition(); recognition.lang = 'en-US';
+    recognition.interimResults = false; recognition.maxAlternatives = 1;
 }
 
-// Tính năng Quay lại lựa chọn đã làm (Undo testing nhanh)
+const startBtn = document.getElementById('start-btn');
+const btnText = document.getElementById('btn-text');
+const btnIcon = document.getElementById('btn-icon');
+const statusText = document.getElementById('status-text');
+const transcriptText = document.getElementById('transcript-text');
+const sceneryImg = document.getElementById('scenery-img');
+const storyText = document.getElementById('story');
+const optionsList = document.getElementById('options-list');
+const interactionBox = document.getElementById('interaction-box');
+const appContainer = document.getElementById('main-app');
+
+if (recognition) {
+    startBtn.addEventListener('click', () => { try { recognition.start(); } catch(e){} });
+
+    recognition.onstart = () => {
+        statusText.className = "status-active"; statusText.innerText = "🎙️ Listening... Speak your choice phrase clearly in English.";
+        btnText.innerText = "Listening closely..."; btnIcon.innerText = "🛑"; startBtn.disabled = true;
+    };
+    recognition.onspeechend = () => {
+        recognition.stop(); startBtn.disabled = false;
+        btnText.innerText = "Tap to Speak"; btnIcon.innerText = "🎙️";
+    };
+    recognition.onresult = (event) => {
+        const resultText = event.results[0][0].transcript.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+        transcriptText.innerText = `"${event.results[0][0].transcript}"`;
+        processSpeechInput(resultText);
+    };
+    recognition.onerror = (e) => {
+        startBtn.disabled = false; btnText.innerText = "Tap to Speak"; btnIcon.innerText = "🎙️";
+        statusText.className = "status-error"; statusText.innerText = "Microphone Error: " + e.error;
+    };
+}
+
+function processSpeechInput(text) {
+    const stage = scriptTree[currentStage];
+    let matchedKey = null;
+    for (let key in stage.keywords) {
+        if (text.includes(key)) { matchedKey = stage.keywords[key]; break; }
+    }
+
+    if (matchedKey) {
+        // Ghi nhận lịch sử phục vụ việc Undo
+        historyStack.push({ stage: currentStage, score: serviceScore });
+        currentStage = matchedKey;
+        
+        // Cập nhật điểm số nếu có modifier từ cấu hình node mới
+        const nextStage = scriptTree[currentStage];
+        if (nextStage && nextStage.scoreModifier !== undefined) {
+            serviceScore = Math.max(0, Math.min(10, serviceScore + nextStage.scoreModifier));
+        }
+
+        updateApplicationState();
+        statusText.className = "status-success"; statusText.innerText = "✅ Successfully matched voice command!";
+    } else {
+        statusText.className = "status-error"; statusText.innerText = "❌ Phrase did not match suggestions. Please try reading again clearly!";
+        playSFX('alert');
+    }
+}
+
+function updateApplicationState() {
+    const stage = scriptTree[currentStage];
+    
+    // Khởi chạy hiệu ứng hình ảnh (VFX) và âm thanh đặc trưng (SFX)
+    appContainer.className = "app-container"; void appContainer.offsetWidth; // Force Reflow
+    if (stage.vfx) appContainer.classList.add(stage.vfx);
+    if (stage.sfx) playSFX(stage.sfx); else playSFX('click');
+
+    // Đồng bộ thông số Dashboard
+    document.getElementById('score-val').innerText = `${serviceScore}/10`;
+    document.getElementById('weather-val').innerText = stage.weather || "☀️ Sunny";
+    
+    sceneryImg.src = stage.img;
+    optionsList.innerHTML = '';
+    document.getElementById('back-btn').disabled = (historyStack.length === 0);
+
+    if (currentStage === 'end_evaluation') {
+        // Kích hoạt bộ xử lý logic tính toán thang điểm 5 bậc cuối cùng
+        const finalTier = evaluationTiers.find(t => serviceScore >= t.min) || evaluationTiers[evaluationTiers.length - 1];
+        
+        document.getElementById('speaker-label').innerText = "System Audit Evaluation";
+        storyText.innerHTML = `<strong style="color:var(--primary-color);">${finalTier.title}</strong><br><br>${finalTier.review}<br><br><span style="color:var(--accent-color); font-weight:bold;">💵 Tipping Reward: ${finalTier.tip}</span>`;
+        interactionBox.innerHTML = `<p style="color: var(--success-color); text-align:center; font-weight:bold; margin-bottom:0;">🎉 Congratulations! You have successfully completed the tourist guiding loop.</p>`;
+        startBtn.style.display = 'none';
+        
+        appContainer.className = "app-container"; void appContainer.offsetWidth;
+        appContainer.classList.add(finalTier.color);
+        playSFX(finalTier.sfx);
+        speak("Tour evaluation complete.", 'male');
+        return;
+    }
+
+    // Luồng hội thoại bình thường
+    document.getElementById('speaker-label').innerText = currentStage.includes('_bad') || currentStage.includes('_good') ? "John (Visitor)" : (stage.scoreModifier ? "System Warning" : "John (Visitor)");
+    storyText.innerText = stage.text;
+    interactionBox.style.display = 'block';
+    startBtn.style.display = 'inline-flex';
+
+    if (stage.options && stage.options.length > 0) {
+        stage.options.forEach(option => {
+            const div = document.createElement('div');
+            div.className = 'option-line';
+            div.innerHTML = `👉 <strong>${option}</strong>`;
+            div.onclick = () => {
+                transcriptText.innerText = `[Click Assist] "${option}"`;
+                processSpeechInput(option.toLowerCase());
+            };
+            optionsList.appendChild(div);
+        });
+    }
+
+    // Đọc thoại AI giọng máy trầm ấm hỗ trợ nghe ngấm cốt truyện
+    speak(stage.text, 'male');
+}
+
 function goBack() {
     if (historyStack.length > 0) {
         playSFX('click');
-        const previousState = historyStack.pop();
-        currentState = previousState.state;
-        currentStatus = { ...previousState.status }; // Phục hồi lại chỉ số status trước đó
-        updateUI(true);
+        const prev = historyStack.pop();
+        currentStage = prev.stage;
+        serviceScore = prev.score;
+        
+        // Nếu phục hồi từ màn hình cuối, bật lại nút nói
+        startBtn.style.display = 'inline-flex';
+        interactionBox.innerHTML = `<p>🔊 Read Aloud Your Tour Presentation:</p><div id="options-list"></div>`;
+        
+        updateApplicationState();
+        statusText.className = ""; statusText.innerText = "Undo executed. State reverted.";
     }
 }
 
-function startListening() {
-    if (recognition) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        recognition.start();
-    }
+function resetGame() {
+    currentStage = 'start'; serviceScore = 10; historyStack = [];
+    transcriptText.innerText = "..."; statusText.className = "";
+    statusText.innerText = "System reset. Ready for talk loop.";
+    startBtn.style.display = 'inline-flex';
+    interactionBox.innerHTML = `<p>🔊 Read Aloud Your Tour Presentation:</p><div id="options-list"></div>`;
+    updateApplicationState();
 }
 
-function processInput(text) {
-    const node = storyData[currentState];
-    let matchedBranch = null;
-
-    for (const key in node.branches) {
-        if (text.includes(key)) {
-            matchedBranch = node.branches[key];
-            break;
-        }
-    }
-
-    if (matchedBranch) {
-        // Lưu lại dữ liệu trước khi chuyển đổi state mới sang historyStack
-        historyStack.push({
-            state: currentState,
-            status: { ...currentStatus }
-        });
-
-        currentState = matchedBranch;
-        updateUI();
-    } else {
-        document.getElementById('status').innerText = "Status: Static detected. Repeat.";
-        playSFX('alert');
-        speak("Transmission fuzzy. Repeat command.", node.voiceType);
-    }
-}
-
-// --- ENGINE NHẬN DIỆN GIỌNG NÓI ---
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recognition;
-if (SpeechRecognition) {
-    recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => {
-        document.getElementById('status').innerText = "Status: Listening...";
-        document.getElementById('mic-btn').disabled = true;
-    };
-    recognition.onresult = (event) => {
-        const speechToText = event.results[0][0].transcript.toLowerCase();
-        document.getElementById('transcript').innerText = `You said: "${speechToText}"`;
-        processInput(speechToText);
-    };
-    recognition.onerror = () => {
-        document.getElementById('status').innerText = "Status: Error. Try again.";
-        document.getElementById('mic-btn').disabled = false;
-    };
-    recognition.onend = () => {
-        document.getElementById('status').innerText = "Status: Standby";
-        document.getElementById('mic-btn').disabled = false;
-    };
-} else {
-    alert("Web Speech API not fully supported. Please use Google Chrome.");
-}
-
-// --- ENGINE PHÁT GIỌNG AI CHUẨN ĐIỆN ẢNH ---
 function speak(text, gender) {
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); 
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.rate = 0.88; // Đọc chậm rãi, nhấn nhá tạo chiều sâu không khí hậu tận thế
-        
+        utterance.lang = 'en-US'; utterance.rate = 0.92;
         const voices = window.speechSynthesis.getVoices();
-        let selectedVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en'));
-        
-        if (gender === 'female') {
-            utterance.pitch = 1.0;
-            selectedVoice = voices.find(v => v.name.includes('Google US English Female') || v.name.includes('Zira') || (v.lang.includes('en') && v.name.includes('Female'))) || selectedVoice;
-        } else {
-            utterance.pitch = 0.82; // Hạ giọng trầm sâu cho Jax
-            selectedVoice = voices.find(v => v.name.includes('Google US English Male') || v.name.includes('David') || (v.lang.includes('en') && v.name.includes('Male'))) || selectedVoice;
-        }
-        
-        if (selectedVoice) utterance.voice = selectedVoice;
+        let voice = voices.find(v => v.name.includes('Google US English Male') || v.name.includes('David') || (v.lang.includes('en') && v.name.includes('Male')));
+        if (voice) utterance.voice = voice;
         window.speechSynthesis.speak(utterance);
     }
 }
 
-// Khởi chạy hệ thống sau khi voice dữ liệu sẵn sàng
-window.speechSynthesis.onvoiceschanged = () => {
-    if(document.getElementById('situation-text').innerText === "Booting simulation protocols...") {
-        updateUI();
-    }
-};
-window.onload = () => {
-    setTimeout(() => {
-        if(document.getElementById('situation-text').innerText === "Booting simulation protocols...") {
-            updateUI();
-        }
-    }, 800);
-};
+window.addEventListener('DOMContentLoaded', () => {
+    updateApplicationState();
+});
 </script>
 </body>
 </html>
